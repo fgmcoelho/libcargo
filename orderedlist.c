@@ -1,0 +1,154 @@
+#include "orderedlist.h"
+//#include <stdio.h>
+
+static unsigned orderedListFindElementIndex(orderedList* , void* , int* );
+
+orderedList* orderedListCreate(int (*compareFunction)(void*, void*)){
+
+	orderedList* newOrderedList = (orderedList*) malloc(sizeof(orderedList));
+	if (newOrderedList != NULL){
+		newOrderedList->elements = vectorCreate();
+		if (newOrderedList->elements != NULL){
+			newOrderedList->compareFunction = compareFunction;
+		}
+		else{
+			free(newOrderedList);
+			newOrderedList = NULL;
+		}
+	}
+
+	return newOrderedList;
+}
+
+int orderedListInsertElement(orderedList* ol, void* data){
+
+	if (ol == NULL){
+		return 0;
+	}
+
+	unsigned size = vectorGetSize(ol->elements);
+	if (size == 0){
+		return vectorPushBack(ol->elements, data);
+	}
+
+	unsigned min = 0, max = size, index;
+	int result;
+	index = (min + max)/2;
+	do{
+		result = ol->compareFunction(data, vectorGetElementAt(ol->elements, index));
+		if (result < 0){
+			max = index;
+			index = (min + max)/2;
+		}
+		else if (result > 0){
+			min = index;
+			index = (min + max)/2 + (min + max)%2;
+		}
+	
+
+	}while (result != 0  && (max != min) && (!((index == 0 && result < 0) || (index == size && result > 0)))
+			&& (!((min +1 == max) && result > 0)) );
+	
+	return vectorAddElementAt(ol->elements, data, index);
+
+}
+
+int orderedListRemoveElementAt(orderedList* ol, void (*freeFunction)(void*), unsigned at){
+	if (ol == NULL){
+		return 0;
+	}
+
+	return vectorRemoveElementAt(ol->elements, freeFunction, at);
+}
+
+int orderedListRemoveElement(orderedList* ol, void (*freeFunction)(void*), void* data){
+	int result;
+	unsigned index = orderedListFindElementIndex(ol, data, &result);
+	if (result == 0){
+		return 0;
+	}
+	return vectorRemoveElementAt(ol->elements, freeFunction, index);
+}
+
+void orderedListClear(orderedList** ol, void (*freeFunction)(void*)){
+
+	if (ol == NULL || *ol == NULL){
+		return;
+	}
+
+	vectorClear(&(*ol)->elements, freeFunction);
+	free(*ol);
+	*ol = NULL;
+
+}
+
+void* orderedListGetElementAt(orderedList* ol, unsigned at){
+	if (ol == NULL){
+		return NULL;
+	}
+	return vectorGetElementAt(ol->elements, at);
+}
+
+static unsigned orderedListFindElementIndex(orderedList* ol, void* data, int* searchResult){
+	
+	unsigned size = vectorGetSize(ol->elements);
+	unsigned min = 0, max = size, index;
+	int result;
+	index = (min + max)/2;
+	do{
+		result = ol->compareFunction(data, vectorGetElementAt(ol->elements, index));
+		if (result < 0){
+			max = index;
+			index = (min + max)/2;
+		}
+		else if (result > 0){
+			min = index;
+			index = (min + max)/2 + (min + max)%2;
+		}
+		else{
+			*searchResult = 1;
+			return index;
+		}
+
+	}while ((max != min) && (!((index == 0 && result < 0) || (index == size && result > 0)))
+			&& (!((min +1 == max) && result > 0)) );
+
+	*searchResult = 0;
+	return 0;
+
+}
+
+void* orderedListFindElement(orderedList* ol, void* data){
+	if (ol == NULL){
+		return NULL;
+	}
+
+	unsigned size = vectorGetSize(ol->elements);
+	if (size == 0){
+		return NULL;
+	}
+
+	int searchResult;
+	unsigned index = orderedListFindElementIndex(ol, data, &searchResult);
+	if (searchResult == 0){	
+		return NULL;
+	}
+	else{
+		return vectorGetElementAt(ol->elements, index);
+	}
+}
+
+inline unsigned orderedListGetSize(orderedList* ol){
+	if(ol == NULL){
+		return 0;
+	}
+	return vectorGetSize(ol->elements);
+}
+
+void orderedListIteratorStart(orderedList* ol, listIterator* it){
+	listIteratorStart(ol->elements->elements, it);
+}
+
+listIterator* orderedListIteratorCreate(orderedList* ol){
+	return listIteratorCreate(ol->elements->elements);
+}
