@@ -16,7 +16,8 @@ typedef struct heap_t heap;
 
 heap* heapCreate(int (*)(void*, void*));
 int heapInsert(heap*, void*);
-int heapRemove(heap*, void*);
-
+void* heapGetFirstElement(heap*);
+void* heapPopFirstElement(heap*);
+void heapClear(heap*, void (*)(void*));
 
 #endif

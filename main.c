@@ -3,7 +3,7 @@
 #include "heap.h"
 #include <stdio.h>
 #include <string.h>
-
+#include <time.h>
 
 int testVector(){
 	
@@ -130,34 +130,45 @@ struct heap_test_t {
 	int number;
 };
 
-static int compareForHeap(void* a, void* b){
-	return ((struct heap_test_t*)a)->number > ((struct heap_test_t*)b)->number;
+static int compareForMinHeap(void* a, void* b){
+		return ((struct heap_test_t*)a)->number < ((struct heap_test_t*)b)->number;
+}
+
+static int compareForMaxHeap(void* a, void* b){
+		return ((struct heap_test_t*)a)->number > ((struct heap_test_t*)b)->number;
 }
 
 static void testHeap(void){
 
-	heap* myHeap = heapCreate(compareForHeap);
-	
-	struct heap_test_t heapTestEntries[10];
-	
-	heapTestEntries[0].number = 11;
-	heapTestEntries[1].number = 5;
-	heapTestEntries[2].number = 8;
-	heapTestEntries[3].number = 3;
-	heapTestEntries[4].number = 4;
-	heapTestEntries[5].number = 15;
-	
-	heapInsert(myHeap, &heapTestEntries[0]);
-	heapInsert(myHeap, &heapTestEntries[1]);
-	heapInsert(myHeap, &heapTestEntries[2]);
-	heapInsert(myHeap, &heapTestEntries[3]);
-	heapInsert(myHeap, &heapTestEntries[4]);
-	heapInsert(myHeap, &heapTestEntries[5]);
+	srand(time(NULL));
 
+	unsigned minValue = 3;
+	unsigned maxValue = 5000000;
+	struct heap_test_t* toTest;
+	heap* minHeap = heapCreate(compareForMinHeap);
+	
 	int i;
-	for (i = 0; i < 6; ++i){
-		printf("%d.\n", ((struct heap_test_t*)myHeap->info[i])->number);
+	for (i = 0; i < 2048; ++i){
+		toTest = (struct heap_test_t*)malloc(sizeof(struct heap_test_t));
+		if (toTest == NULL){
+			printf("Heap test failed, OOM.");
+			exit (1);
+		}
+		toTest->number = (rand() % (maxValue - minValue - 1)) + 1;
+		heapInsert(minHeap, toTest);
 	}
+	
+	toTest = (struct heap_test_t*)malloc(sizeof(struct heap_test_t));
+	if (toTest == NULL){
+		printf("Heap test failed, OOM.");
+		exit (1);
+	}
+	toTest->number = minValue;
+	heapInsert(minHeap, toTest);
+
+	toTest = heapGetFirstElement(minHeap);
+	printf("Value on min heap should be: %d and it is %d.", minValue, toTest->number);
+	heapClear(minHeap, free);
 
 }
 
