@@ -21,6 +21,7 @@ int listAddElement(list*, void*);
 int listRemoveElement(list* , void* );
 void listClear(list** , void (*)(void*));
 void* listFindElement(list* , int(*)(void*, void*), void* );
+void* listPopFirstElement(list*);
 listElement* listAddElementAtFirstPosition(list* , void* );
 listElement* listAddElementAfterPosition(list* , listElement* , void* );
 int listRemoveElementAfterPosition(list* , listElement* , void (*)(void*));

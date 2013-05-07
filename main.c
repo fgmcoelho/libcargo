@@ -1,6 +1,7 @@
 #include "vector.h"
 #include "orderedlist.h"
 #include "heap.h"
+#include "pool.h"
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -42,11 +43,39 @@ int testVector(){
 
 }
 
+struct orderedListTest_t{
+	int value;
+};
+
+typedef struct orderedListTest_t orderedListTest;
+
+static int orderedListCompare(void* a, void* b){
+	return ((orderedListTest*)a)->value - ((orderedListTest*)b)->value;
+
+}
+
 int testOrderedList(){
 	
+	printf("\nTesting ordered list with strings:\n");
 	orderedList* ol = orderedListCreate((int(*)(void*, void*))strcmp);
 
-	if(orderedListInsertElement(ol, strdup("aaaa")) == 0){
+	if(orderedListInsertElement(ol, strdup("aaa")) == 0){
+		printf("Error %d!\n", __LINE__);
+	}
+	
+	if(orderedListInsertElement(ol, strdup("bbb")) == 0){
+		printf("Error %d!\n", __LINE__);
+	}
+	
+	if(orderedListInsertElement(ol, strdup("fff")) == 0){
+		printf("Error %d!\n", __LINE__);
+	}
+	
+	if(orderedListInsertElement(ol, strdup("eee")) == 0){
+		printf("Error %d!\n", __LINE__);
+	}
+	
+	if(orderedListInsertElement(ol, strdup("ddd")) == 0){
 		printf("Error %d!\n", __LINE__);
 	}
 	
@@ -54,44 +83,22 @@ int testOrderedList(){
 		printf("Error %d!\n", __LINE__);
 	}
 	
-	if(orderedListInsertElement(ol, strdup("cccc")) == 0){
-		printf("Error %d!\n", __LINE__);
-	}
-	
-	if(orderedListInsertElement(ol, strdup("aaaa")) == 0){
-		printf("Error %d!\n", __LINE__);
-	}
-	
-	if(orderedListInsertElement(ol, strdup("bbbb")) == 0){
-		printf("Error %d!\n", __LINE__);
-	}
-	
-	if(orderedListInsertElement(ol, strdup("b")) == 0){
-		printf("Error %d!\n", __LINE__);
-	}
-	
-	if(orderedListInsertElement(ol, strdup("c")) == 0){
+	if(orderedListInsertElement(ol, strdup("ccc")) == 0){
 		printf("Error %d!\n", __LINE__);
 	}
 
-	if(orderedListInsertElement(ol, strdup("ccccc")) == 0){
+	if(orderedListInsertElement(ol, strdup("hhh")) == 0){
 		printf("Error %d!\n", __LINE__);
 	}
 
 
-	if (orderedListFindElement(ol, "aaaa") != NULL){
+	if (orderedListFindElement(ol, "aaa") != NULL){
 		printf("Found element that should be found!\n");
 	}
 	else{
 		printf("Error finding elemenet.\n");
 	}
 	
-	if (orderedListFindElement(ol, "dddd") != NULL){
-		printf("Found element that shouldn't be found\n");
-	}
-	else{
-		printf("Didn't find element, as expected.\n");
-	}
 
 	if (orderedListRemoveElement(ol, free, "bbbb") == 0){
 		printf("Error %d!\n", __LINE__);
@@ -108,6 +115,7 @@ int testOrderedList(){
 	if (orderedListRemoveElementAt(ol, free, 2) == 0){
 		printf("Error %d!\n", __LINE__);
 	}
+	
 
 	if(orderedListInsertElement(ol, strdup("dd")) == 0){
 		printf("Error %d!\n", __LINE__);
@@ -119,8 +127,102 @@ int testOrderedList(){
 	for (element = listIteratorGetFirstElement(&it); element != NULL; element = listIteratorGetNextElement(&it)){
 		printf("Element: %s.\n", element);
 	}
+	
+	if (orderedListFindElement(ol, "bbbb") != NULL){
+		printf("Found element that shouldn't be found\n");
+	}
+	else{
+		printf("Didn't find element, as expected.\n");
+	}
 
 	orderedListClear(&ol, free);
+	
+	printf("\nTesting ordered with even number of integer elements:\n");
+	ol = orderedListCreate(orderedListCompare);
+
+	orderedListTest testMemory[20];
+	testMemory[0].value = 1;
+	testMemory[1].value = 10;
+	testMemory[2].value = 20;
+	testMemory[3].value = 16;
+	testMemory[4].value = 12;
+	testMemory[5].value = 8;
+
+	orderedListInsertElement(ol, &testMemory[0]);
+	orderedListInsertElement(ol, &testMemory[1]);
+	orderedListInsertElement(ol, &testMemory[2]);
+	orderedListInsertElement(ol, &testMemory[3]);
+	orderedListInsertElement(ol, &testMemory[4]);
+	orderedListInsertElement(ol, &testMemory[5]);
+
+	orderedListTest findMemory;
+	
+	findMemory.value = 1;
+	if (orderedListFindElement(ol, &findMemory) == NULL){
+		printf("Element not found.\n");
+	}
+	
+	findMemory.value = 20;
+	if (orderedListFindElement(ol, &findMemory) == NULL){
+		printf("Element not found.\n");
+	}
+	
+	findMemory.value = 77;
+	if (orderedListFindElement(ol, &findMemory) != NULL){
+		printf("Found element that shouldn't be found.\n");
+	}
+
+	orderedListIteratorStart(ol, &it);
+	orderedListTest* testElement;
+	for (testElement = listIteratorGetFirstElement(&it); testElement != NULL; testElement = listIteratorGetNextElement(&it)){
+		printf("Element: %d.\n", ((orderedListTest*)testElement)->value);
+	}
+
+	orderedListClear(&ol, NULL);
+
+	printf("\nTesting ordered with odd number of integer elements:\n");
+	ol = orderedListCreate(orderedListCompare);
+
+	testMemory[0].value = 1;
+	testMemory[1].value = 10;
+	testMemory[2].value = 20;
+	testMemory[3].value = 16;
+	testMemory[4].value = 12;
+	testMemory[5].value = 8;
+	testMemory[6].value = 500000;
+
+	orderedListInsertElement(ol, &testMemory[0]);
+	orderedListInsertElement(ol, &testMemory[1]);
+	orderedListInsertElement(ol, &testMemory[2]);
+	orderedListInsertElement(ol, &testMemory[3]);
+	orderedListInsertElement(ol, &testMemory[4]);
+	orderedListInsertElement(ol, &testMemory[5]);
+	orderedListInsertElement(ol, &testMemory[6]);
+
+	findMemory.value = 1;
+
+	if (orderedListFindElement(ol, &findMemory) == NULL){
+		printf("Element not found.\n");
+	}
+	
+	findMemory.value = 500000;
+
+	if (orderedListFindElement(ol, &findMemory) == NULL){
+		printf("Element not found.\n");
+	}
+	
+	findMemory.value = 77;
+	if (orderedListFindElement(ol, &findMemory) != NULL){
+		printf("Found element that shouldn't be found.\n");
+	}
+
+	orderedListIteratorStart(ol, &it);
+	for (testElement = listIteratorGetFirstElement(&it); testElement != NULL; testElement = listIteratorGetNextElement(&it)){
+		printf("Element: %d.\n", ((orderedListTest*)testElement)->value);
+	}
+
+	orderedListClear(&ol, NULL);
+
 
 	return 0;
 
@@ -167,15 +269,53 @@ static void testHeap(void){
 	heapInsert(minHeap, toTest);
 
 	toTest = heapGetFirstElement(minHeap);
-	printf("Value on min heap should be: %d and it is %d.", minValue, toTest->number);
+	printf("Value on min heap should be: %d and it is %d.\n", minValue, toTest->number);
 	heapClear(minHeap, free);
+
+}
+
+
+static void testPool(){
+	
+	const int poolElementsCount = 10;
+	pool* myPool = poolCreate(poolElementsCount, sizeof(int));
+	if(myPool == NULL){
+		printf("Error starting pool.\n");
+		exit(1);
+	}
+
+	int i = 0;
+	int* x;
+	for (i = 0; i < poolElementsCount; ++i){
+		x = (int*)poolGetElement(myPool);
+		*x = i;
+	}
+	if (poolGetElement(myPool) != NULL){
+		printf("Error, should be empty.");
+		exit(1);
+	}
+
+	poolReturnElement(myPool, x);
+	int* y = poolGetElement(myPool);
+	if (y == NULL){
+		printf("Error, shouldn't be empty.");
+		exit(1);
+	}
+
+	if (*y != i-1){
+		printf("Error, value recovered is invalid.");
+		exit(1);
+	}
+
+	poolClear(myPool);
 
 }
 
 int main(){
 	//testVector();
-	//testOrderedList();
-	testHeap();
+	testOrderedList();
+	//testHeap();
+	testPool();
 
 	return 0;
 }

@@ -36,7 +36,7 @@ int heapInsert(heap* h, void* data){
 
 	if(h->used == h->currentSize){
 		unsigned newSize =  h->currentSize * 2;
-		void** newIndexes = (void**) realloc (h->info, newSize);
+		void** newIndexes = (void**) realloc (h->info, newSize*sizeof(heap));
 		if (newIndexes == NULL){
 			return 0;
 		}

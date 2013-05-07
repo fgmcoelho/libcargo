@@ -1,4 +1,4 @@
-#include "orderedlist.h"
+	#include "orderedlist.h"
 //#include <stdio.h>
 
 static unsigned orderedListFindElementIndex(orderedList* , void* , int* );
@@ -26,29 +26,42 @@ int orderedListInsertElement(orderedList* ol, void* data){
 		return 0;
 	}
 
+	//printf ("Trying to insert: %s.\n", (char*)data);
 	unsigned size = vectorGetSize(ol->elements);
 	if (size == 0){
 		return vectorPushBack(ol->elements, data);
 	}
 
-	unsigned min = 0, max = size, index;
+	int min = 0, max = size - 1, index, formerIndex;
 	int result;
-	index = (min + max)/2;
+	index = ((max + min)/2) + (max + min)%2;
 	do{
 		result = ol->compareFunction(data, vectorGetElementAt(ol->elements, index));
+		//printf("Compared %s with %s [index: %d], result -> %d | min %d | max %d .\n", 
+		//	data, vectorGetElementAt(ol->elements, index), index, result, min, max);
+		
 		if (result < 0){
+			formerIndex = index;
 			max = index;
-			index = (min + max)/2;
+			index = ((max + min)/2) + (max + min)%2;
 		}
 		else if (result > 0){
+			formerIndex = index;
 			min = index;
-			index = (min + max)/2 + (min + max)%2;
+			index = (max + min)/2 + (max + min)%2;
 		}
-	
 
-	}while (result != 0  && (max != min) && (!((index == 0 && result < 0) || (index == size && result > 0)))
-			&& (!((min +1 == max) && result > 0)) );
-	
+	}while (index != formerIndex && (result != 0) && (min != max));
+
+	if (min == max && result > 0){
+		index = size;
+	}
+	if (min == max && result < 0){
+		index = min;
+	}
+
+	//printf("Inserting element at %d.\n", index);
+
 	return vectorAddElementAt(ol->elements, data, index);
 
 }
@@ -91,27 +104,41 @@ void* orderedListGetElementAt(orderedList* ol, unsigned at){
 
 static unsigned orderedListFindElementIndex(orderedList* ol, void* data, int* searchResult){
 	
+	//printf ("Trying to find: %s.\n", (char*)data);
+	
 	unsigned size = vectorGetSize(ol->elements);
-	unsigned min = 0, max = size, index;
+	if (size == 0){
+		if (ol->compareFunction(data, vectorGetElementAt(ol->elements, 0)) == 0){
+			*searchResult = 1;
+		}
+		else{
+			*searchResult = 0;
+		}
+		return 0;
+	}
+	
+	int min = 0, max = size - 1, index;
 	int result;
-	index = (min + max)/2;
+	index = (max + min)/2;
 	do{
 		result = ol->compareFunction(data, vectorGetElementAt(ol->elements, index));
+		//printf("Compared %s with %s [index: %d], result -> %d | min %d | max %d .\n", 
+		//	data, vectorGetElementAt(ol->elements, index), index, result, min, max);
+
 		if (result < 0){
-			max = index;
-			index = (min + max)/2;
+			max = index -1;
+			index = ((max + min)/2);
 		}
 		else if (result > 0){
-			min = index;
-			index = (min + max)/2 + (min + max)%2;
+			min = index + 1;
+			index = ((max + min)/2);
 		}
 		else{
 			*searchResult = 1;
 			return index;
 		}
 
-	}while ((max != min) && (!((index == 0 && result < 0) || (index == size && result > 0)))
-			&& (!((min +1 == max) && result > 0)) );
+	}while (max >= min);
 
 	*searchResult = 0;
 	return 0;

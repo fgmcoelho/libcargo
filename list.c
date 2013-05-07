@@ -99,6 +99,11 @@ void listClear(list** l, void (*func)(void*)){
 }
 
 void* listFindElement(list* l, int(*compareFunction)(void*, void*), void* toFind){
+	
+	if (l == NULL || compareFunction == NULL || toFind == NULL){
+		return NULL;
+	}
+	
 	listElement* aux = l->head;
 
 	while(aux != NULL){
@@ -109,6 +114,25 @@ void* listFindElement(list* l, int(*compareFunction)(void*, void*), void* toFind
 	}
 
 	return NULL;
+}
+
+void* listPopFirstElement(list* l){
+
+	if (l == NULL){
+		return NULL;
+	}
+
+	if (l->head != NULL){
+		void* data = l->head->data;
+		listElement* toFree = l->head;
+		l->head = l->head->next;
+		free(toFree);
+		return data;
+	}
+	else{
+		return NULL;
+	}
+
 }
 
 int listRemoveElement(list *l, void* toRemove){

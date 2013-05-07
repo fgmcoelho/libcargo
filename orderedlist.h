@@ -4,6 +4,8 @@
 #include "vector.h"
 #include "list.h"
 
+#include <stdio.h>
+
 struct ordered_list_t{
 	vector* elements;
 	int (*compareFunction)(void*, void*);
