@@ -1,9 +1,24 @@
-CC=gcc
-C_FLAGS=-O3
-ifdef $(DEBUG)
-C_FLAGS+=-g 
-endif
+TARGET = containers
+LIBS = -lm
+CC = gcc
+CFLAGS = -g #-Wall
 
-all:
-	$(CC) $(C_FLAGS) *.c -o container 
+.PHONY: default all clean
 
+default: $(TARGET)
+all: default
+
+OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
+HEADERS = $(wildcard *.h)
+
+%.o: %.c $(HEADERS)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+.PRECIOUS: $(TARGET) $(OBJECTS)
+
+$(TARGET): $(OBJECTS)
+	$(CC) $(OBJECTS) $(CFLAGS) $(LIBS) -o $@
+
+clean:
+	-rm -f *.o
+	-rm -f $(TARGET)
