@@ -144,7 +144,7 @@ int testOrderedList(){
 	printf("\nTesting ordered with even number of integer elements:\n");
 	ol = orderedListCreate(orderedListCompare);
 
-	orderedListTest testMemory[100];
+	orderedListTest testMemory[100] = {0};
 	testMemory[0].value = 1;
 	testMemory[1].value = 10;
 	testMemory[2].value = 20;
@@ -261,7 +261,7 @@ int testOrderedList(){
 
 	printf("\nTesting ordered with one hundred random values:\n");
 	
-	int times = 0;
+	int times = 0, errorTimes = 0;
 	srand(time(NULL));
 	for (times = 0; times < 2000; times++){
 
@@ -269,7 +269,7 @@ int testOrderedList(){
 
 		int randomArray[100];
 		for (i = 0; i < 100; i++){
-			randomArray[i] = rand() % 10000;
+			randomArray[i] = rand() % 50;
 		}
 
 		for (i = 0; i < 100; ++i){
@@ -293,8 +293,10 @@ int testOrderedList(){
 		orderedListClear(&ol, NULL);
 		if (errors != 0){
 			printf("Test of hundred values number %d had %d errors.\n", times+1, errors);
+			errorTimes++;
 		}
 	}
+	printf("Random numbers arrays result (errors/number of arrays tested): %d/%d.\n", errorTimes, times);
 
 	return 0;
 }

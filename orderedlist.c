@@ -32,7 +32,7 @@ int orderedListInsertElement(orderedList* ol, void* data){
 		return vectorPushBack(ol->elements, data);
 	}
 
-	int min = 0, max = size - 1, index, formerIndex;
+	int min = 0, max = size - 1, index, formerIndex = size;
 	int result;
 	index = ((max + min)/2) + (max + min)%2;
 	do{
