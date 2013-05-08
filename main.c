@@ -54,6 +54,10 @@ static int orderedListCompare(void* a, void* b){
 
 }
 
+static int sortCmp(const void* a, const void* b){
+	return *(int*)a - *(int*)b;
+}
+
 int testOrderedList(){
 	
 	printf("\nTesting ordered list with strings:\n");
@@ -140,7 +144,7 @@ int testOrderedList(){
 	printf("\nTesting ordered with even number of integer elements:\n");
 	ol = orderedListCreate(orderedListCompare);
 
-	orderedListTest testMemory[20];
+	orderedListTest testMemory[100];
 	testMemory[0].value = 1;
 	testMemory[1].value = 10;
 	testMemory[2].value = 20;
@@ -224,8 +228,75 @@ int testOrderedList(){
 	orderedListClear(&ol, NULL);
 
 
-	return 0;
+	printf("\nTesting ordered with multiple integer with the same value:\n");
+	ol = orderedListCreate(orderedListCompare);
 
+	int  i = 0;
+	testMemory[0].value = 5;
+	testMemory[1].value = 8;
+	testMemory[2].value = 8;
+	testMemory[3].value = 8;
+	testMemory[4].value = 10;
+	testMemory[5].value = 1;
+	testMemory[6].value = 12;
+	testMemory[7].value = 12;
+	testMemory[8].value = 12;
+	testMemory[9].value = 3;
+	testMemory[10].value = 15;
+	testMemory[11].value = 15;
+	testMemory[12].value = 15;
+	testMemory[13].value = 20;
+	testMemory[14].value = 0;
+
+	for (i = 0; i < 15; i++){
+		orderedListInsertElement(ol, &testMemory[i]);
+	}
+	
+	orderedListIteratorStart(ol, &it);
+	for (testElement = listIteratorGetFirstElement(&it); testElement != NULL; testElement = listIteratorGetNextElement(&it)){
+		printf("Element: %d.\n", ((orderedListTest*)testElement)->value);
+	}
+
+	orderedListClear(&ol, NULL);
+
+	printf("\nTesting ordered with one hundred random values:\n");
+	
+	int times = 0;
+	srand(time(NULL));
+	for (times = 0; times < 2000; times++){
+
+		ol = orderedListCreate(orderedListCompare);
+
+		int randomArray[100];
+		for (i = 0; i < 100; i++){
+			randomArray[i] = rand() % 10000;
+		}
+
+		for (i = 0; i < 100; ++i){
+			testMemory[i].value = randomArray[i];
+			orderedListInsertElement(ol, &testMemory[i]);
+		}
+
+		qsort(randomArray, 100, sizeof(int), sortCmp);
+
+		i = 0;
+		int errors = 0;
+		orderedListIteratorStart(ol, &it);
+		for (testElement = listIteratorGetFirstElement(&it); testElement != NULL; testElement = listIteratorGetNextElement(&it)){
+			if (testElement->value != randomArray[i]){
+				errors++;
+			}
+			//printf("%6d", testElement->value);
+			i++;
+		}
+		//printf("\n");
+		orderedListClear(&ol, NULL);
+		if (errors != 0){
+			printf("Test of hundred values number %d had %d errors.\n", times+1, errors);
+		}
+	}
+
+	return 0;
 }
 
 struct heap_test_t {

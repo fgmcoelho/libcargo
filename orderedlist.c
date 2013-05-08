@@ -26,7 +26,7 @@ int orderedListInsertElement(orderedList* ol, void* data){
 		return 0;
 	}
 
-	//printf ("Trying to insert: %s.\n", (char*)data);
+	//printf ("Trying to insert: %d.\n", *(int*)data);
 	unsigned size = vectorGetSize(ol->elements);
 	if (size == 0){
 		return vectorPushBack(ol->elements, data);
@@ -37,8 +37,8 @@ int orderedListInsertElement(orderedList* ol, void* data){
 	index = ((max + min)/2) + (max + min)%2;
 	do{
 		result = ol->compareFunction(data, vectorGetElementAt(ol->elements, index));
-		//printf("Compared %s with %s [index: %d], result -> %d | min %d | max %d .\n", 
-		//	data, vectorGetElementAt(ol->elements, index), index, result, min, max);
+		//printf("Compared %d with %d [index: %d], result -> %d | min %d | max %d .\n", 
+		//	*(int*)data, *(int*)(vectorGetElementAt(ol->elements, index)), index, result, min, max);
 		
 		if (result < 0){
 			formerIndex = index;
@@ -53,13 +53,18 @@ int orderedListInsertElement(orderedList* ol, void* data){
 
 	}while (index != formerIndex && (result != 0) && (min != max));
 
-	if (min == max && result > 0){
-		index = size;
+	if (index == formerIndex && result < 0 && index != 0 && 	
+			ol->compareFunction(data, vectorGetElementAt(ol->elements, index -1)) < 0){
+		index--;
 	}
-	if (min == max && result < 0){
-		index = min;
+	else{
+		if (min == max && result > 0){
+			index = size;
+		}
+		if (min == max && result < 0){
+			index = min;
+		}
 	}
-
 	//printf("Inserting element at %d.\n", index);
 
 	return vectorAddElementAt(ol->elements, data, index);
