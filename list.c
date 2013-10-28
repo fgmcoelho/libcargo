@@ -172,6 +172,28 @@ int listRemoveElement(list *l, void* toRemove){
 
 }
 
+int listMergeLists(list** dstList, list** srcList){
+	if (*dstList == NULL || *srcList == NULL){
+		return 0;
+	}
+
+	if ((*dstList)->head == NULL){
+		(*dstList)->head = (*srcList)->head;
+		(*dstList)->tail = (*srcList)->tail;
+		free(*srcList);
+		*srcList = NULL;
+		return 1;
+	}
+	else{
+		(*dstList)->tail->next = (*srcList)->head;
+		free(*srcList);
+		*srcList = NULL;
+		return 1;
+	}
+
+}
+
+
 int listRemoveElementAfterPosition(list* l, listElement* position, void (*freeFunction)(void*)){
 
 	if (l == NULL || position == NULL || l->tail == position){

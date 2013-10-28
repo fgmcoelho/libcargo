@@ -9,8 +9,7 @@
 struct vector_t {
 	unsigned used;
 	unsigned available;
-	listElement** indexes;
-	list* elements;
+	void** indexes;
 };
 
 typedef struct vector_t vector;

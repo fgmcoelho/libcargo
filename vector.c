@@ -3,7 +3,7 @@
 static inline int vectorExpandIndexesIfNeeded(vector* v){
 	if (v->available  == v->used){
 		unsigned newSize = v->used*2;
-		listElement** newIndexes = (listElement**)realloc(v->indexes, newSize*sizeof(listElement*));
+		void** newIndexes = (void**)realloc(v->indexes, newSize*sizeof(void*));
 		if (newIndexes == NULL){
 			return 0;
 		}
@@ -17,19 +17,11 @@ static inline int vectorExpandIndexesIfNeeded(vector* v){
 
 int vectorPushBack(vector* v, void* data){
 
-	if (v == NULL){
-		return 0;
-	}
-
 	if (vectorExpandIndexesIfNeeded(v) == 0){
 		return 0;
 	}
 
-	if(listAddElement(v->elements, data) == 0){
-		return 0;
-	}
-
-	v->indexes[v->used] = v->elements->tail;
+	v->indexes[v->used] = data;
 	v->used++;
 
 	return 1;
@@ -41,7 +33,13 @@ void vectorClear(vector** v, void (*freeFunction)(void*)){
 		return;
 	}
 
-	listClear(&(*v)->elements, freeFunction);
+	unsigned i;
+	if (freeFunction != NULL){
+		for (i = 0; i < (*v)->used; i++){
+			freeFunction((*v)->indexes[i]);
+		}
+	}
+
 	free((*v)->indexes);
 	free(*v);
 	*v = NULL;
@@ -54,24 +52,7 @@ int vectorAddElementAt(vector* v, void* data, unsigned at){
 		return 0;
 	}
 	
-	if (at == 0 && v->used == 0){
-		return vectorPushBack(v, data);
-	}
-
-	listElement* le;
-	if (at == 0){
-		le = listAddElementAtFirstPosition(v->elements, data);
-	}
-	else{
-		le = listAddElementAfterPosition(v->elements, v->indexes[at-1], data);
-	}
-
-	if (le == NULL){
-		return 0;
-	}
-
 	if (vectorExpandIndexesIfNeeded(v) == 0){
-		free(le);
 		return 0;
 	}
 
@@ -79,7 +60,8 @@ int vectorAddElementAt(vector* v, void* data, unsigned at){
 	for (i = v->used; i > at; --i){
 		v->indexes[i] = v->indexes[i-1];
 	}
-	v->indexes[at] = le;
+
+	v->indexes[at] = data;
 	v->used++;
 
 	return 1;
@@ -94,21 +76,18 @@ int vectorRemoveElementAt(vector* v, void (*freeFunction)(void*), unsigned at){
 	if (at > v->used){
 		return 0;
 	}
-
-	if (at == 0){
-		listRemoveElementAtFirstPosition(v->elements, freeFunction);
-	}
-	else{
-		listRemoveElementAfterPosition(v->elements, v->indexes[at-1], freeFunction);
-	}
-
+	
 	int i;
+	void* dataToClear = v->indexes[at];
 	for (i = at; i < v->used - 1; ++i){
 		v->indexes[i] = v->indexes[i+1];
 	}
 
 	v->used--;
-	
+	if (freeFunction != NULL){
+		freeFunction(dataToClear);
+	}
+
 	return 1;
 
 }
@@ -117,7 +96,7 @@ inline void* vectorGetElementAt(vector* v, unsigned index){
 	if (v == NULL || index >= v->used){
 		return NULL;
 	}
-	return v->indexes[index]->data;
+	return v->indexes[index];
 }
 
 inline unsigned vectorGetSize(vector* v){
@@ -135,15 +114,8 @@ vector* vectorCreate(void){
 		return NULL;
 	}
 	
-	newVector->elements = listCreate();
-	if (newVector->elements == NULL){
-		free(newVector);
-		return NULL;
-	}
-
-	newVector->indexes = (listElement**) malloc(sizeof(listElement*)*VECTOR_BASE_SIZE);
+	newVector->indexes = (void**) malloc(sizeof(void*)*VECTOR_BASE_SIZE);
 	if (newVector->indexes == NULL){
-		listClear(&newVector->elements, NULL);
 		free(newVector);
 		return NULL;
 	}

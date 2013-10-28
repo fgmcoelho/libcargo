@@ -5,40 +5,70 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <assert.h>
 
 int testVector(){
 	
+	const int elementsToTest = 2000;
+	const int elementsSize = 16;
+
 	vector* v = vectorCreate();
 	if (v == NULL){
-		printf("Error starting the vector.\n");
-		return 0;
+		printf("%s (%d): Error starting the vector.\n", __FUNCTION__, __LINE__);
+		exit(1);
 	}
 
-	int i = 0;
+	pool* p = poolCreate(elementsToTest, sizeof(char) * elementsSize);
 
-	char buffer[256];
-	for (i = 0; i < 2000; ++i){
-		snprintf(buffer, sizeof(buffer), "Teste %d.", i);
-		vectorPushBack(v, strdup(buffer));
+	int i;
+	char* buffer;
+
+	for (i = 0; i < elementsToTest; ++i){
+		buffer = poolGetElement(p);
+		if (buffer == NULL){
+			printf("%s (%d): Error OOM.", __FUNCTION__, __LINE__);
+			exit(1);
+		}
+		snprintf(buffer, elementsSize, "Teste %d.", i);
+		vectorPushBack(v, buffer);
 	}
 
 
-	printf("%s\n", (char*)vectorGetElementAt(v, 1100));
-	vectorRemoveElementAt(v, free, 1070);
-	printf("%s\n", (char*)vectorGetElementAt(v, 1100));
+	printf("%s (%d): pegando elemento 1100 [%s]\n", __FUNCTION__, __LINE__, (char*)vectorGetElementAt(v, 1100));
+	assert(strcmp((char*)vectorGetElementAt(v, 1100), "Teste 1100.") == 0);
+	vectorRemoveElementAt(v, NULL, 1070);
+	printf("%s (%d): pegando elemente 1100 apos remocao do 1070: [%s]\n", __FUNCTION__, __LINE__, 
+		(char*)vectorGetElementAt(v, 1100));
+	assert(strcmp((char*)vectorGetElementAt(v, 1100), "Teste 1101.") == 0);
 	
-	if(vectorAddElementAt(v, strdup("testando at."), 1200) == 0){
-		printf("Error 1200.\n");
-	}
-	printf("%s\n", (char*)vectorGetElementAt(v, 1200));
 	
-	if(vectorAddElementAt(v, strdup("testando at."), 0) == 0){
-		printf("Error 0.\n");
+	buffer = poolGetElement(p);
+	snprintf(buffer, elementsSize, "testando at.");
+	if(vectorAddElementAt(v, buffer, 1200) == 0){
+		printf("%s (%d): Error 1200.\n", __FUNCTION__, __LINE__);
+		exit(1);
 	}
-	printf("%s\n", (char*)vectorGetElementAt(v, 1200));
+	assert(strcmp((char*)vectorGetElementAt(v, 1200), "testando at.") == 0);
+	printf("%s (%d): Testando adicao, elemento deve ser [testando at]. Valor: [%s]\n", __FUNCTION__, __LINE__, 
+		(char*)vectorGetElementAt(v, 1200));
 
+	vectorClear(&v, NULL);
+	poolClear(p);
+
+	v = vectorCreate();
+	if (v == NULL){
+		printf("%s (%d): Error starting the vector.\n", __FUNCTION__, __LINE__);
+		exit(1);
+	}
+
+	printf("%s (%d): Criando elementos com strdup para testar double free e cleaning function.\n", __FUNCTION__, __LINE__);
+	for (i = 0; i < elementsToTest; ++i){
+		vectorPushBack(v, strdup("aaa"));
+	}
 	vectorClear(&v, free);
-	
+
+	printf("%s (%d): Todos os testes com vector OK, verifique leaks com o valgrind!\n", __FUNCTION__, __LINE__);
+
 	return 1;
 
 }
@@ -125,10 +155,10 @@ int testOrderedList(){
 		printf("Error %d!\n", __LINE__);
 	}
 
-	listIterator it;
+	orderedListIterator it;
 	orderedListIteratorStart(ol, &it);
 	char* element;
-	for (element = listIteratorGetFirstElement(&it); element != NULL; element = listIteratorGetNextElement(&it)){
+	for (element = orderedListIteratorGetFirstElement(&it); element != NULL; element = orderedListIteratorGetNextElement(&it)){
 		printf("Element: %s.\n", element);
 	}
 	
@@ -178,7 +208,8 @@ int testOrderedList(){
 
 	orderedListIteratorStart(ol, &it);
 	orderedListTest* testElement;
-	for (testElement = listIteratorGetFirstElement(&it); testElement != NULL; testElement = listIteratorGetNextElement(&it)){
+	for (testElement = orderedListIteratorGetFirstElement(&it); testElement != NULL; 
+			testElement = orderedListIteratorGetNextElement(&it)){
 		printf("Element: %d.\n", ((orderedListTest*)testElement)->value);
 	}
 
@@ -221,7 +252,8 @@ int testOrderedList(){
 	}
 
 	orderedListIteratorStart(ol, &it);
-	for (testElement = listIteratorGetFirstElement(&it); testElement != NULL; testElement = listIteratorGetNextElement(&it)){
+	for (testElement = orderedListIteratorGetFirstElement(&it); testElement != NULL; 
+			testElement = orderedListIteratorGetNextElement(&it)){
 		printf("Element: %d.\n", ((orderedListTest*)testElement)->value);
 	}
 
@@ -253,7 +285,8 @@ int testOrderedList(){
 	}
 	
 	orderedListIteratorStart(ol, &it);
-	for (testElement = listIteratorGetFirstElement(&it); testElement != NULL; testElement = listIteratorGetNextElement(&it)){
+	for (testElement = orderedListIteratorGetFirstElement(&it); testElement != NULL; 
+			testElement = orderedListIteratorGetNextElement(&it)){
 		printf("Element: %d.\n", ((orderedListTest*)testElement)->value);
 	}
 
@@ -282,7 +315,8 @@ int testOrderedList(){
 		i = 0;
 		int errors = 0;
 		orderedListIteratorStart(ol, &it);
-		for (testElement = listIteratorGetFirstElement(&it); testElement != NULL; testElement = listIteratorGetNextElement(&it)){
+		for (testElement = orderedListIteratorGetFirstElement(&it); testElement != NULL; 
+				testElement = orderedListIteratorGetNextElement(&it)){
 			if (testElement->value != randomArray[i]){
 				errors++;
 			}
@@ -350,7 +384,7 @@ static void testHeap(void){
 
 static void testPool(){
 	
-	const int poolElementsCount = 10;
+	const int poolElementsCount = 0x00FFFFFF;
 	pool* myPool = poolCreate(poolElementsCount, sizeof(int));
 	if(myPool == NULL){
 		printf("Error starting pool.\n");
@@ -359,36 +393,19 @@ static void testPool(){
 
 	int i = 0;
 	int* x;
-	for (i = 0; i < poolElementsCount; ++i){
-		x = (int*)poolGetElement(myPool);
-		*x = i;
-	}
-	if (poolGetElement(myPool) != NULL){
-		printf("Error, should be empty.");
-		exit(1);
-	}
-
-	poolReturnElement(myPool, x);
-	int* y = poolGetElement(myPool);
-	if (y == NULL){
-		printf("Error, shouldn't be empty.");
-		exit(1);
-	}
-
-	if (*y != i-1){
-		printf("Error, value recovered is invalid.");
-		exit(1);
-	}
+	
+	while(poolGetElement(myPool) != NULL);
+	printf("Pool is full at the limit of memory, gonna free it.\n");
 
 	poolClear(myPool);
 
 }
 
 int main(){
-	//testVector();
+	testVector();
 	testOrderedList();
-	//testHeap();
-	testPool();
+	testHeap();
+	//testPool();
 
 	return 0;
 }

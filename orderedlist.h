@@ -2,7 +2,6 @@
 #define __ORDEREDLIST_H_GUARD
 
 #include "vector.h"
-#include "list.h"
 
 #include <stdio.h>
 
@@ -13,8 +12,6 @@ struct ordered_list_t{
 
 typedef struct ordered_list_t orderedList;
 
-//TODO: definir iterators
-
 orderedList* orderedListCreate(int (*)(void*, void*));
 int orderedListInsertElement(orderedList*, void*);
 int orderedListRemoveElementAt(orderedList*, void (*)(void*), unsigned);
@@ -23,7 +20,19 @@ void orderedListClear(orderedList**, void (*)(void*));
 void* orderedListGetElementByIndex(orderedList*, unsigned);
 void* orderedListFindElement(orderedList*, void*);
 inline unsigned orderedListGetSize(orderedList* );
-void orderedListIteratorStart(orderedList* , listIterator* );
-listIterator* orderedListIteratorCreate(orderedList* );
+
+struct ordered_list_iterator_t{
+	orderedList* ol;
+	unsigned index;
+};
+
+typedef struct ordered_list_iterator_t orderedListIterator;
+
+orderedListIterator* orderedListIteratorCreate(orderedList* );
+void orderedListIteratorStart(orderedList* , orderedListIterator* );
+void* orderedListIteratorGetFirstElement(orderedListIterator*);
+void* orderedListIteratorGetNextElement(orderedListIterator*);
+void* orderedListIteratorGetCurrentElement(orderedListIterator*);
+void orderedListIteratorReset(orderedListIterator*);
 
 #endif

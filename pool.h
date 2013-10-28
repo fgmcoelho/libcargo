@@ -4,9 +4,8 @@
 #include "list.h"
 
 struct pool_t {
-	void* memoryBlock;
-	unsigned sizeOfElements;
-	list *freeRefs;
+	unsigned sizeOfElements, elementsPerBlock;
+	list *freeRefs, *memoryBlocks;;
 };
 
 typedef struct pool_t pool;

@@ -177,10 +177,59 @@ inline unsigned orderedListGetSize(orderedList* ol){
 	return vectorGetSize(ol->elements);
 }
 
-void orderedListIteratorStart(orderedList* ol, listIterator* it){
-	listIteratorStart(ol->elements->elements, it);
+
+orderedListIterator* orderedListIteratorCreate(orderedList* ol){
+	
+	if (ol == NULL){
+		return NULL;
+	}
+	
+	orderedListIterator* it = (orderedListIterator*)malloc(sizeof(orderedListIterator));
+	if (it == NULL){
+		return NULL;
+	}
+
+	it->ol = ol;
+	it->index = 0;
+
 }
 
-listIterator* orderedListIteratorCreate(orderedList* ol){
-	return listIteratorCreate(ol->elements->elements);
+void orderedListIteratorStart(orderedList* ol, orderedListIterator* it){
+	it->ol = ol;
+	it->index = 0;
 }
+
+void* orderedListIteratorGetFirstElement(orderedListIterator* it){
+
+	if (it == NULL){
+		return NULL;
+	}
+	return orderedListGetElementAt(it->ol, 0);
+	
+}
+
+void* orderedListIteratorGetNextElement(orderedListIterator* it){
+	
+	if (it == NULL){
+		return NULL;
+	}
+	
+	it->index++;
+	return orderedListGetElementAt(it->ol, it->index);
+
+}
+
+void* orderedListIteratorGetCurrentElement(orderedListIterator* it){
+	if (it == NULL){
+		return NULL;
+	}
+	
+	return orderedListGetElementAt(it->ol, it->index);
+
+}
+
+void orderedListIteratorReset(orderedListIterator* it){
+	it->index = 0;
+}
+
+
