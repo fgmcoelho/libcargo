@@ -2,6 +2,7 @@
 #include "orderedlist.h"
 #include "heap.h"
 #include "pool.h"
+#include "refcount.h"
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -401,11 +402,111 @@ static void testPool(){
 
 }
 
+struct testRefpointerStruct_t{
+	char *str1, *str2, *str3;
+};
+
+static void testRefpointerStructFreeFunction(void* pt){
+	struct testRefpointerStruct_t* toFree = (struct testRefpointerStruct_t*) pt;
+	referencedPointerUnref(toFree->str1);
+	referencedPointerUnref(toFree->str2);
+	referencedPointerUnref(toFree->str3);
+}
+
+static void testRefpointerRecursiveWithComplexStruct(struct testRefpointerStruct_t* ref, unsigned count){
+
+	if (count == 0){
+		return;
+	}
+
+	int i = rand() % 4;
+	if (i == 0){
+		char* x = referencedPointerRef(ref->str1);
+		assert(strcmp("string 1", x) == 0);
+		testRefpointerRecursiveWithComplexStruct(ref, count - 1);
+		referencedPointerUnref(ref->str1);
+	}
+	else if (i == 1){
+		char* x = referencedPointerRef(ref->str2);
+		assert(strcmp("string 2", x) == 0);
+		testRefpointerRecursiveWithComplexStruct(ref, count - 1);
+		referencedPointerUnref(ref->str2);
+	}
+	else if (i == 2){
+		char* x = referencedPointerRef(ref->str3);
+		assert(strcmp("string 3", x) == 0);
+		testRefpointerRecursiveWithComplexStruct(ref, count - 1);
+		referencedPointerUnref(ref->str3);
+	}
+	else{
+		struct testRefpointerStruct_t* x = referencedPointerRef(ref);
+		assert(strcmp("string 1", x->str1) == 0);
+		assert(strcmp("string 2", x->str2) == 0);
+		assert(strcmp("string 3", x->str3) == 0);
+		testRefpointerRecursiveWithComplexStruct(ref, count - 1);
+		referencedPointerUnref(ref);
+	}
+
+}
+
+static const char* testRefpointerString = "Teste com 20 chars.";
+static void testRefpointerRecursiveWithString(char* referecendChar, unsigned count){
+
+	if (count == 0){
+		return;
+	}
+
+	char* x = referencedPointerRef(referecendChar);
+	assert(strcmp(x, testRefpointerString) == 0);
+	testRefpointerRecursiveWithString(x, count - 1);
+	referencedPointerUnref(x);
+
+}
+
+static void testRefpointer(){
+	
+	char* x = referencedPointerCreate(20 * sizeof(char), NULL);
+	snprintf(x, 20, "%s", testRefpointerString);
+	srand(time(NULL));
+	unsigned recTimes = rand() % 1000;
+	printf("Testando ref/unref %u vezes com char*.\n", recTimes);
+	testRefpointerRecursiveWithString(x, recTimes);
+	assert(strcmp(x, testRefpointerString) == 0);
+	assert(referencedPointerUnref(x) == NULL);
+	
+	struct testRefpointerStruct_t* ref = referencedPointerCreate(sizeof(struct testRefpointerStruct_t), 
+			testRefpointerStructFreeFunction);
+	
+	char* postReferenced = referencedPointerCreate(9 * sizeof(char), NULL);
+	snprintf(postReferenced, 9, "string 2");
+	
+	ref->str1 = referencedPointerCreate(9 * sizeof(char), NULL);
+	snprintf(ref->str1, 9, "string 1");
+	ref->str2 = referencedPointerRef(postReferenced);
+	ref->str3 = referencedPointerCreate(9 * sizeof(char), NULL);
+	snprintf(ref->str3, 9, "string 3");
+	
+	char* toKeep = referencedPointerRef(ref->str1);
+
+	recTimes = rand() % 1000;
+	printf("Testando ref/unref %u vezes com struct complexa.\n", recTimes);
+	testRefpointerRecursiveWithComplexStruct(ref, recTimes);
+	assert(referencedPointerUnref(ref) == NULL);
+	
+	printf("Ainda deve existir: %s.\n", toKeep);
+	assert(referencedPointerUnref(toKeep) == NULL);
+	
+	printf("Pos referenciado: %s.\n", postReferenced);
+	assert(referencedPointerUnref(postReferenced) == NULL);
+
+}
+
 int main(){
-	testVector();
-	testOrderedList();
-	testHeap();
+	//testVector();
+	//testOrderedList();
+	//testHeap();
 	//testPool();
+	testRefpointer();
 
 	return 0;
 }
