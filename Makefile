@@ -1,7 +1,7 @@
-TARGET = containers
+TARGET = libcontainers
 LIBS = -lm
 CC = gcc
-CFLAGS = -g #-Wall
+CFLAGS = -g -Wall -shared
 
 .PHONY: default all clean
 
@@ -17,8 +17,8 @@ HEADERS = $(wildcard *.h)
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) $(LIBS) $(OBJECTS) -o $@
+	$(CC) $(CFLAGS) $(LIBS) $(OBJECTS) -o $@.so
 
 clean:
 	-rm -f *.o
-	-rm -f $(TARGET)
+	-rm -f $(TARGET).so

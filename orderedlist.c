@@ -80,6 +80,9 @@ int orderedListRemoveElementAt(orderedList* ol, void (*freeFunction)(void*), uns
 }
 
 int orderedListRemoveElement(orderedList* ol, void (*freeFunction)(void*), void* data){
+	if (ol == NULL){
+		return 0;
+	}
 	int result;
 	unsigned index = orderedListFindElementIndex(ol, data, &result);
 	if (result == 0){
@@ -113,12 +116,7 @@ static unsigned orderedListFindElementIndex(orderedList* ol, void* data, int* se
 	
 	unsigned size = vectorGetSize(ol->elements);
 	if (size == 0){
-		if (ol->compareFunction(data, vectorGetElementAt(ol->elements, 0)) == 0){
-			*searchResult = 1;
-		}
-		else{
-			*searchResult = 0;
-		}
+		*searchResult = 0;
 		return 0;
 	}
 	
@@ -192,6 +190,7 @@ orderedListIterator* orderedListIteratorCreate(orderedList* ol){
 	it->ol = ol;
 	it->index = 0;
 
+	return it;
 }
 
 void orderedListIteratorStart(orderedList* ol, orderedListIterator* it){

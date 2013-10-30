@@ -333,6 +333,10 @@ int testOrderedList(){
 	}
 	printf("Random numbers arrays result (errors/number of arrays tested): %d/%d.\n", errorTimes, times);
 
+	ol = orderedListCreate((int(*)(void*, void*))strcmp);
+	assert(orderedListRemoveElement(ol, NULL, "aaaaa") == 0);
+	orderedListClear(&ol, NULL);
+
 	return 0;
 }
 
@@ -503,7 +507,7 @@ static void testRefpointer(){
 
 int main(){
 	//testVector();
-	//testOrderedList();
+	testOrderedList();
 	//testHeap();
 	//testPool();
 	testRefpointer();
