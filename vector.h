@@ -2,7 +2,6 @@
 #define VECTOR_H_GUARD__
 
 #include <stdlib.h>
-#include "list.h"
 
 #define VECTOR_BASE_SIZE 256
 

@@ -5,28 +5,29 @@
 
 struct list_element_t{
 	void* data;
-	struct list_element_t* next;
+	struct list_element_t* next, *former;
 };
 
 typedef struct list_element_t listElement;
 
 struct list_t{
+	unsigned size;
 	listElement* head, *tail;
 };
 
 typedef struct list_t list;
 
 list* listCreate(void);
-int listAddElement(list*, void*);
-int listRemoveElement(list* , void* );
-void listClear(list** , void (*)(void*));
-void* listFindElement(list* , int(*)(void*, void*), void* );
+unsigned listGetSize(list* );
+int listPushBack(list*, void*);
+int listPushFront(list*, void*);
+int listRemoveElement(list* , void(*)(void*), void* );
+int listRemoveElementIf(list*, void(*)(void*), int (*)(void*));
 void* listPopFirstElement(list*);
+void* listPopLastElement(list*);
+void* listFindElement(list* , int(*)(void*, void*), void* );
 int listMergeLists(list** , list** );
-listElement* listAddElementAtFirstPosition(list* , void* );
-listElement* listAddElementAfterPosition(list* , listElement* , void* );
-int listRemoveElementAfterPosition(list* , listElement* , void (*)(void*));
-int listRemoveElementAtFirstPosition(list* , void(*)(void*));
+void listClear(list** , void (*)(void*));
 
 struct list_iterator_t{
 	list* l;
@@ -38,9 +39,14 @@ typedef struct list_iterator_t listIterator;
 listIterator* listIteratorCreate(list* l);
 void listIteratorStart(list* l, listIterator* it);
 void* listIteratorGetFirstElement(listIterator*);
+void* listIteratorGetLastElement(listIterator*);
 void* listIteratorGetNextElement(listIterator*);
 void* listIteratorGetCurrentElement(listIterator*);
 void listIteratorReset(listIterator*);
+
+int listIteratorRemoveCurrent(listIterator*, void(*)(void*));
+int listIteratorAddElementAfter(listIterator*, void*);
+int listIteratorAddElementBefore(listIterator*, void*);
 
 
 #endif

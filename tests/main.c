@@ -1,3 +1,4 @@
+#include "list.h"
 #include "vector.h"
 #include "orderedlist.h"
 #include "heap.h"
@@ -7,6 +8,291 @@
 #include <string.h>
 #include <time.h>
 #include <assert.h>
+
+static const int LIST_NUMBER_OF_ELEMENTS = 10;
+static const int LIST_MAX_ELEMENT_VALUE = 10000;
+static const int LIST_TOTAL_RANDOM_TESTS = 100000;
+
+static int isOdd(void* a){
+	return *((int*)a)%2;
+}
+
+static int isEven(void* a){
+	return !(*((int*)a)%2);
+}
+
+static int* allocateNewEvenNumber(void){
+	int *newElement = (int*) malloc (sizeof(int));
+	if (newElement == NULL){
+		printf("%s (%d): Error OOM.\n", __FUNCTION__, __LINE__);
+		exit(1);
+	}
+	*newElement = rand() % LIST_MAX_ELEMENT_VALUE;
+	if (*newElement % 2 != 0){
+		(*newElement)++;
+	}
+
+	return newElement;
+}
+
+static int* allocateNewOddNumber(void){
+	int* newElement = allocateNewEvenNumber();
+	(*newElement)++;
+	return newElement;
+}
+
+static void testList(){
+
+
+	srand(time(NULL));
+	list* firstList = listCreate();
+	list* secondList = listCreate();
+
+	int i;
+	for (i = 0; i < LIST_NUMBER_OF_ELEMENTS; i++){
+		
+		if (listPushBack(firstList, allocateNewEvenNumber()) == 0){
+			printf("%s (%d): Error adding element to list.\n", __FUNCTION__, __LINE__);
+			exit(1);
+		}
+
+	}
+	
+	for (i = 0; i < LIST_NUMBER_OF_ELEMENTS; i++){
+		if (listPushBack(secondList, allocateNewOddNumber()) == 0){
+			printf("%s (%d): Error adding element to list.\n", __FUNCTION__, __LINE__);
+			exit(1);
+		}
+	}
+	
+	listIterator it;
+	int* currentElement;
+	
+	printf("Printing first list:\n");
+	listIteratorStart(firstList, &it);
+	for (currentElement = listIteratorGetFirstElement(&it); currentElement != NULL; 
+			currentElement = listIteratorGetNextElement(&it)){
+		
+		printf("%d.\n", *currentElement);
+	
+	}
+
+	if (listRemoveElement(firstList, free, listIteratorGetFirstElement(&it)) == 0){
+		printf("%s (%d): Error removing first element.\n", __FUNCTION__, __LINE__);
+		exit(1);
+	}
+	
+	if(listRemoveElement (firstList, free, listIteratorGetLastElement(&it)) == 0){
+		printf("%s (%d): Error removing last element.\n", __FUNCTION__, __LINE__);
+		exit(1);
+	}
+
+	assert(listGetSize(firstList) == LIST_NUMBER_OF_ELEMENTS - 2);
+
+	printf("Printing second list:\n");
+	listIteratorStart(secondList, &it);
+	for (currentElement = listIteratorGetFirstElement(&it); currentElement != NULL; 
+			currentElement = listIteratorGetNextElement(&it)){
+		
+		printf("%d.\n", *currentElement);
+	
+	}
+
+	if (listMergeLists(&firstList, &secondList) == 0){
+		printf("%s (%d): Error merging lists.\n", __FUNCTION__, __LINE__);
+		exit(1);
+	}
+
+	assert(secondList == NULL);
+	assert(listGetSize(firstList) == (LIST_NUMBER_OF_ELEMENTS * 2) - 2);
+
+	listIteratorStart(firstList, &it);
+	printf("Printing merged lists:\n");
+	for (currentElement = listIteratorGetFirstElement(&it); currentElement != NULL; 
+			currentElement = listIteratorGetNextElement(&it)){
+		
+		printf("%d.\n", *currentElement);
+	
+	}
+	
+	assert(listRemoveElementIf(firstList, free, isOdd) == 1);
+	assert(listGetSize(firstList) == LIST_NUMBER_OF_ELEMENTS -2);
+	
+	listIteratorStart(firstList, &it);
+	printf("Printing merged lists without the odd numbers:\n");
+	for (currentElement = listIteratorGetFirstElement(&it); currentElement != NULL; 
+			currentElement = listIteratorGetNextElement(&it)){
+		
+		printf("%d.\n", *currentElement);
+	
+	}
+
+	if (listPushFront(firstList, allocateNewOddNumber()) == 0){
+		printf("%s (%d): Error adding element to list.\n", __FUNCTION__, __LINE__);
+		exit(1);
+	}
+
+	if (listPushFront(firstList, allocateNewEvenNumber()) == 0){
+		printf("%s (%d): Error adding element to list.\n", __FUNCTION__, __LINE__);
+		exit(1);
+	}
+
+	assert(listGetSize(firstList) == LIST_NUMBER_OF_ELEMENTS);
+
+	listIteratorStart(firstList, &it);
+	printf("Printing merged lists with a single odd number at second position:\n");
+	for (currentElement = listIteratorGetFirstElement(&it); currentElement != NULL; 
+			currentElement = listIteratorGetNextElement(&it)){
+		
+		printf("%d.\n", *currentElement);
+	
+	}
+
+	listRemoveElementIf(firstList, free, isEven);
+	assert(listGetSize(firstList) == 1);
+
+	listIteratorStart(firstList, &it);
+	printf("Printing merged lists with a single odd number:\n");
+	for (currentElement = listIteratorGetFirstElement(&it); currentElement != NULL; 
+			currentElement = listIteratorGetNextElement(&it)){
+		
+		printf("%d.\n", *currentElement);
+	
+	}
+	
+	listIteratorStart(firstList, &it);
+	listIteratorAddElementBefore(&it, allocateNewEvenNumber());
+	assert(listGetSize(firstList) == 2);
+	listIteratorAddElementAfter(&it, allocateNewOddNumber());
+	assert(listGetSize(firstList) == 3);
+
+	listIteratorReset(&it);
+	printf("Printing merged lists with three elements:\n");
+	for (currentElement = listIteratorGetFirstElement(&it); currentElement != NULL; 
+			currentElement = listIteratorGetNextElement(&it)){
+		
+		printf("%d.\n", *currentElement);
+	
+	}
+
+	listClear(&firstList, free);
+	assert(firstList == NULL);
+
+	firstList = listCreate();
+	int odd = 0, even = 0;
+	for (i = 0; i < LIST_TOTAL_RANDOM_TESTS; ++i){
+		int roll = rand() % 10;
+		void* data;
+		if (roll == 1){
+			printf("PUSH BACK\n");
+			assert(listPushBack(firstList, allocateNewEvenNumber()));
+			even++;
+		}
+		else if (roll == 2){
+			printf("PUSH BACK\n");
+			assert(listPushBack(firstList, allocateNewOddNumber()));
+			odd++;
+		}
+		else if (roll == 3){
+			printf("POP FIRST\n");
+			if (listGetSize(firstList) == 0) {
+				data = listPopFirstElement(firstList);
+				assert(data == NULL);
+			}
+			else{
+				data = listPopFirstElement(firstList);
+				assert(data != NULL);
+				if (isOdd(data)){
+					odd--;
+				}
+				else{
+					even--;
+				}
+				free(data);
+			}
+		}
+		else if (roll == 4){
+			printf("POP LAST\n");
+			if (listGetSize(firstList) == 0) {
+				data = listPopLastElement(firstList);
+				assert(data == NULL);
+			}
+			else{
+				data = listPopLastElement(firstList);
+				assert(data != NULL);
+				if (isOdd(data)){
+					odd--;
+				}
+				else{
+					even--;
+				}
+				free(data);
+			}
+		}
+		else if (roll == 5){
+			printf("PUSH FRONT\n");
+			assert(listPushFront(firstList, allocateNewEvenNumber()));
+			even++;
+		}
+		else if (roll == 6){
+			printf("PUSH FRONT\n");
+			assert(listPushFront(firstList, allocateNewOddNumber()));
+			odd++;
+		}
+		else if (roll == 7){
+			printf("REMOVE EVEN\n");
+			listRemoveElementIf(firstList, free, isEven);
+			even = 0;
+		}
+		else if (roll == 8){
+			printf("REMOVE ODD\n");
+			listRemoveElementIf(firstList, free, isOdd);
+			odd = 0;
+		}
+		else if (roll == 9){
+			printf("ITERATOR GET\n");
+			listIterator it;
+			listIteratorStart(firstList, &it);
+			if (odd + even == 0){
+				assert(listIteratorGetFirstElement(&it) == NULL);
+			}
+			else{
+				assert(listIteratorGetLastElement(&it) != NULL);
+			}
+		}
+		else if (roll == 0){
+			listIterator it;
+			listIteratorStart(firstList, &it);
+			if (odd + even == 0){
+				assert(listIteratorGetFirstElement(&it) == NULL);
+			}
+			else{
+				printf("REMOVE WITH IT\n");
+				int j, max = rand()%(odd+even)/2;
+				for (j = 0; j < max; j++){
+					listIteratorGetNextElement(&it);
+				}
+				data = listIteratorGetCurrentElement(&it);
+				if(isOdd(data)){
+					odd--;
+				}
+				else{
+					even--;
+				}
+
+				assert(listIteratorRemoveCurrent(&it, free) != 0);
+			}
+
+
+		}
+
+		assert(listGetSize(firstList) == (odd + even));
+
+	}
+	listClear(&firstList, free);
+	assert(firstList == NULL);
+
+}
 
 int testVector(){
 	
@@ -506,11 +792,12 @@ static void testRefpointer(){
 }
 
 int main(){
+	testList();
 	//testVector();
-	testOrderedList();
+	//testOrderedList();
 	//testHeap();
 	//testPool();
-	testRefpointer();
+	//testRefpointer();
 
 	return 0;
 }

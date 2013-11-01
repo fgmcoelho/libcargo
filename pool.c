@@ -29,7 +29,7 @@ pool* poolCreate(unsigned numberOfElements, unsigned sizeOfElements){
 		return NULL;
 	}
 
-	if(listAddElement(newPool->memoryBlocks, currentBlock) == 0){
+	if(listPushBack(newPool->memoryBlocks, currentBlock) == 0){
 		listClear(&newPool->memoryBlocks, NULL);
 		free(currentBlock);
 		free(newPool);
@@ -38,7 +38,7 @@ pool* poolCreate(unsigned numberOfElements, unsigned sizeOfElements){
 
 	int i = 0;
 	for (i = 0; i < numberOfElements; ++i){
-		if(listAddElement(newPool->freeRefs, (void*)(currentBlock+(i*sizeOfElements))) == 0){
+		if(listPushBack(newPool->freeRefs, (void*)(currentBlock+(i*sizeOfElements))) == 0){
 			listClear(&newPool->freeRefs, NULL);
 			listClear(&newPool->memoryBlocks, NULL);
 			free(currentBlock);
@@ -76,14 +76,14 @@ void* poolGetElement(pool* p){
 
 	int i = 0;
 	for (i = 0; i < p->elementsPerBlock; ++i){
-		if(listAddElement(tmpList, (void*)(newBlock+(i*p->sizeOfElements))) == 0){
+		if(listPushBack(tmpList, (void*)(newBlock+(i*p->sizeOfElements))) == 0){
 			listClear(&tmpList, NULL);
 			free(newBlock);
 			return NULL;
 		}
 	}
 
-	if (listAddElement(p->memoryBlocks, newBlock) == 0){
+	if (listPushBack(p->memoryBlocks, newBlock) == 0){
 			listClear(&tmpList, NULL);
 			free(newBlock);
 			return NULL;
@@ -104,7 +104,7 @@ int poolReturnElement(pool* p, void* data){
 		return 0;
 	}
 
-	return listAddElement(p->freeRefs, data);
+	return listPushBack(p->freeRefs, data);
 
 }
 

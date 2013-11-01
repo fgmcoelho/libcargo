@@ -4,6 +4,7 @@ list* listCreate(){
 	
 	list* newList = (list*) malloc (sizeof(list));
 	if (newList != NULL){
+		newList->size = 0;
 		newList->head = NULL;
 		newList->tail = NULL;
 	}
@@ -11,91 +12,224 @@ list* listCreate(){
 	return newList;
 }
 
-int listAddElement(list* l, void* data){
+unsigned listGetSize(list* l){
+
+	if (l == NULL){
+		return 0;
+	}
+	else{
+		return l->size;
+	}
+
+}
+
+int listPushBack(list* l, void* data){
 
 	if (l == NULL){
 		return 0;
 	}
 	
-	listElement* newListElement = (listElement*) malloc (sizeof(list));
+	listElement* newListElement = (listElement*) malloc (sizeof(listElement));
 
 	if (newListElement == NULL){
 		return 0;
 	}
 
-	newListElement->next = NULL;
 	newListElement->data = data;
 
 	if (l->head == NULL){
 		l->head = newListElement;
 		l->tail = newListElement;
+		newListElement->next = NULL;
+		newListElement->former = NULL;
 	}
 	else{
 		l->tail->next = newListElement;
+		newListElement->next = NULL;
+		newListElement->former = l->tail;
 		l->tail = newListElement;
 	}
+	
+	l->size++;
 
 	return 1;
 }
 
-listElement* listAddElementAtFirstPosition(list* l, void* data){
+int listPushFront(list* l, void* data){
 	
 	if (l == NULL){
 		return 0;
 	}
 	
-	listElement* newListElement = (listElement*) malloc (sizeof(list));
-	if (newListElement != NULL){
-		newListElement->data = data;
-		newListElement->next = l->head;
-		l->head = newListElement;
-	}
+	listElement* newListElement = (listElement*) malloc (sizeof(listElement));
 
-	return newListElement;
-
-}
-
-listElement* listAddElementAfterPosition(list* l, listElement* position, void* data){
-	if (l == NULL || position == NULL){
+	if (newListElement == NULL){
 		return 0;
 	}
+
+	newListElement->data = data;
 	
-	listElement* newListElement = (listElement*) malloc (sizeof(list));
-
-	if (newListElement != NULL){
-		newListElement->data = data;
-
-		if (l->tail == position){
-			l->tail->next = newListElement;
-			l->tail = newListElement;
-			newListElement->next = NULL;
-		}
-		else{
-			newListElement->next = position->next;
-			position->next = newListElement;
-		}
+	if (l->head == NULL){
+		l->head = newListElement;
+		l->tail = newListElement;
+		newListElement->next = NULL;
+		newListElement->former = NULL;
+	}
+	else{
+		l->head->former = newListElement;
+		newListElement->former = NULL;
+		newListElement->next = l->head;
+		l->head = newListElement;	
 	}
 	
-	return newListElement;
+	l->size++;
+
+	return 1;
+
 }
 
-void listClear(list** l, void (*func)(void*)){
+int listRemoveElement(list *l, void (*freeFunction)(void*), void* toRemove){
 
-	if (l == NULL || *l == NULL){
-		return;
+	if (l == NULL || l->head == NULL){
+		return 0;
 	}
-
-	listElement* aux = (*l)->head, *aux2;
-	while(aux != NULL){
-		aux2 = aux->next;
-		if (func != NULL){
-			func(aux->data);
+	else{
+		listElement* former = l->head;
+		if (former->data == toRemove){
+			l->head = former->next;
+			former->next->former = NULL;
+			if (l->head == NULL){
+				l->tail = NULL;
+			}
+			l->size--;
+			if (freeFunction != NULL){
+				freeFunction(former->data);
+			}
+			free(former);
+			return 1;
 		}
-		free(aux);
-		aux = aux2;
+
+		listElement* aux = former->next;
+		while(aux != NULL){
+			if (aux->data == toRemove){
+				if (l->tail == aux){
+					l->tail = former;
+					former->next = NULL;
+				}
+				else{
+					former->next = aux->next;
+					aux->next->former = former;
+				}
+				if (freeFunction != NULL){
+					freeFunction(aux->data);
+				}
+				free(aux);
+				l->size--;
+				return 1;
+			}
+			former = aux;
+			aux = aux->next;
+		}
+		return 0;
 	}
-	free(*l);
-	*l = NULL;
+
+}
+
+int listRemoveElementIf(list* l, void(*freeFunction)(void*), int (*compareFunction)(void*)){
+
+	if (l == NULL || l->head == NULL){
+		return 0;
+	}
+
+	listElement *toFree, *aux = l->head;
+	while(aux != NULL){
+		if (compareFunction(aux->data) == 1){
+			toFree = aux;
+
+			if (aux->next != NULL){
+				aux->next->former = aux->former;
+			}
+			if (aux->former != NULL){
+				aux->former->next = aux->next;
+			}
+
+			if (aux == l->head){
+				l->head = aux->next;
+			}
+			if (aux == l->tail){
+				l->tail = aux->former;
+			}
+
+			aux = aux->next;
+
+			if (freeFunction != NULL){
+				freeFunction(toFree->data);
+			} 
+			free(toFree);
+			l->size--;
+
+		}
+		else{
+			aux = aux->next;
+		}
+	}
+	
+	return 1;
+
+}
+
+void* listPopFirstElement(list* l){
+
+	if (l == NULL){
+		return NULL;
+	}
+
+	if (l->head != NULL){
+		void* data = l->head->data;
+		listElement* toFree = l->head;
+		if (l->head == l->tail){
+			l->head = NULL;
+			l->tail = NULL;
+		}
+		else{
+			l->head = l->head->next;
+			l->head->former = NULL;
+		}
+		free(toFree);
+		l->size--;
+		return data;
+	}
+	else{
+		return NULL;
+	}
+
+}
+
+void* listPopLastElement(list* l){
+
+	if (l == NULL){
+		return NULL;
+	}
+
+	if (l->tail != NULL){
+		void* data = l->tail->data;
+		listElement* toFree = l->tail;
+		if (l->head == l->tail){
+			l->head = NULL;
+			l->tail = NULL;
+		}
+		else{
+			l->tail = l->tail->former;
+			l->tail->next = NULL;
+		}
+		free(toFree);
+		l->size--;
+		return data;
+	}
+	else{
+		return NULL;
+	}
+
 }
 
 void* listFindElement(list* l, int(*compareFunction)(void*, void*), void* toFind){
@@ -116,62 +250,6 @@ void* listFindElement(list* l, int(*compareFunction)(void*, void*), void* toFind
 	return NULL;
 }
 
-void* listPopFirstElement(list* l){
-
-	if (l == NULL){
-		return NULL;
-	}
-
-	if (l->head != NULL){
-		void* data = l->head->data;
-		listElement* toFree = l->head;
-		l->head = l->head->next;
-		free(toFree);
-		return data;
-	}
-	else{
-		return NULL;
-	}
-
-}
-
-int listRemoveElement(list *l, void* toRemove){
-
-	if (l == NULL || l->head == NULL){
-		return 0;
-	}
-	else{
-		listElement* former = l->head;
-		if (former->data == toRemove){
-			l->head = former->next;
-			if (l->head == NULL){
-				l->tail = NULL;
-			}
-			free(former);
-			return 1;
-		}
-
-		listElement* aux = former->next;
-		while(aux != NULL){
-			if (aux->data == toRemove){
-				if (l->tail == aux){
-					l->tail = former;
-					former->next = NULL;
-				}
-				else{
-					former->next = aux->next;
-				}
-				free(aux);
-				return 1;
-			}
-			former = aux;
-			aux = aux->next;
-		}
-		return 0;
-	}
-
-}
-
 int listMergeLists(list** dstList, list** srcList){
 	if (*dstList == NULL || *srcList == NULL){
 		return 0;
@@ -180,12 +258,16 @@ int listMergeLists(list** dstList, list** srcList){
 	if ((*dstList)->head == NULL){
 		(*dstList)->head = (*srcList)->head;
 		(*dstList)->tail = (*srcList)->tail;
+		(*dstList)->size = (*srcList)->size;
 		free(*srcList);
 		*srcList = NULL;
 		return 1;
 	}
 	else{
+		(*srcList)->head->former = (*dstList)->tail;
 		(*dstList)->tail->next = (*srcList)->head;
+		(*dstList)->tail = (*srcList)->tail;
+		(*dstList)->size += (*srcList)->size;
 		free(*srcList);
 		*srcList = NULL;
 		return 1;
@@ -193,50 +275,23 @@ int listMergeLists(list** dstList, list** srcList){
 
 }
 
+void listClear(list** l, void (*func)(void*)){
 
-int listRemoveElementAfterPosition(list* l, listElement* position, void (*freeFunction)(void*)){
-
-	if (l == NULL || position == NULL || l->tail == position){
-		return 0;
+	if (l == NULL || *l == NULL){
+		return;
 	}
 
-	if (position->next == l->tail){
-		l->tail = position;
-		if(freeFunction != NULL){
-			freeFunction(position->next->data);
+	listElement* aux = (*l)->head, *aux2;
+	while(aux != NULL){
+		aux2 = aux->next;
+		if (func != NULL){
+			func(aux->data);
 		}
-		free(position->next);
-		position->next = NULL;
+		free(aux);
+		aux = aux2;
 	}
-	else{
-		listElement* toRemove = position->next;
-		position->next = toRemove->next;
-		if (freeFunction != NULL){
-			freeFunction(toRemove->data);
-		}
-		free(toRemove);
-	}
-
-	return 1;
-
-}
-
-int listRemoveElementAtFirstPosition(list* l, void(*freeFunction)(void*)){
-	if (l == NULL){
-		return 0;
-	}
-	if (l->head == NULL){
-		return 1;
-	}
-
-	listElement* newHead = l->head->next;
-	if (freeFunction != NULL){
-		freeFunction(l->head->data);
-	}
-	free(l->head);
-	l->head = newHead;
-	
-	return 1;
+	free(*l);
+	*l = NULL;
 }
 
 void listIteratorStart(list* l, listIterator* it){
@@ -274,6 +329,15 @@ void* listIteratorGetFirstElement(listIterator* it){
 
 }
 
+void* listIteratorGetLastElement(listIterator* it){
+	if (it == NULL){
+		return NULL;
+	}
+	else{
+		return it->l->tail->data;
+	}
+}
+
 void* listIteratorGetNextElement(listIterator* it){
 
 	if (it == NULL || it->current == NULL || it->current->next == NULL){
@@ -304,6 +368,102 @@ void listIteratorReset(listIterator* it){
 	}
 
 	it->current = it->l->head;
+
+}
+
+int listIteratorRemoveCurrent(listIterator* it, void(*freeFunction)(void*)){
+	
+	if(it == NULL || it->l == NULL || it->l->head == NULL){
+		return 0;
+	}
+
+	list* l = it->l;
+	listElement* toFree;
+	if (it->current == l->head){
+		if (freeFunction != NULL){
+			freeFunction(listPopFirstElement(l));
+		}
+		else{
+			listPopFirstElement(l);
+		}
+		it->current = l->head;
+
+		return 1;
+	}
+
+	if (it->current == l->tail){
+		if (freeFunction != NULL){
+			freeFunction(listPopLastElement(l));
+		}
+		else{
+			listPopLastElement(l);
+		}
+		it->current = NULL;
+		return 1;
+	}
+	
+	l->size--;
+	it->current->former->next = it->current->next;
+	it->current->next->former = it->current->former;
+	if (freeFunction != NULL){
+		freeFunction(it->current->data);
+	}
+	toFree = it->current;
+	it->current = it->current->next;
+	free(toFree);
+
+	return 1;
+
+}
+
+int listIteratorAddElementAfter(listIterator* it, void* data){
+
+	if(it == NULL || it->l == NULL || it->l->head == NULL){
+		return 0;
+	}
+
+	list* l = it->l;
+	if (it->current == l->tail){
+		return listPushBack(l, data);
+	}
+
+	listElement* newElement = (listElement*) malloc (sizeof(newElement));
+	if (newElement == NULL){
+		return 0;
+	}
+	
+	l->size++;
+	newElement->next = it->current->next;
+	it->current->next->former = newElement;
+	newElement->former = it->current;
+	it->current->next = newElement;
+
+	return 1;
+
+}
+
+int listIteratorAddElementBefore(listIterator* it, void* data){
+	if(it == NULL || it->l == NULL || it->l->head == NULL){
+		return 0;
+	}
+	
+	list* l = it->l;
+	if (it->current == l->head){
+		return listPushFront(l, data);
+	}
+
+	listElement* newElement = (listElement*) malloc (sizeof(newElement));
+	if (newElement == NULL){
+		return 0;
+	}
+
+	l->size++;
+	it->current->former->next = newElement;
+	newElement->former = it->current->former;
+	newElement->next = it->current;
+	it->current->former = newElement;
+
+	return 1;
 
 }
 
