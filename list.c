@@ -1,7 +1,7 @@
 #include "list.h"
 
 list* listCreate(){
-	
+
 	list* newList = (list*) malloc (sizeof(list));
 	if (newList != NULL){
 		newList->size = 0;
@@ -28,7 +28,7 @@ int listPushBack(list* l, void* data){
 	if (l == NULL){
 		return 0;
 	}
-	
+
 	listElement* newListElement = (listElement*) malloc (sizeof(listElement));
 
 	if (newListElement == NULL){
@@ -49,18 +49,18 @@ int listPushBack(list* l, void* data){
 		newListElement->former = l->tail;
 		l->tail = newListElement;
 	}
-	
+
 	l->size++;
 
 	return 1;
 }
 
 int listPushFront(list* l, void* data){
-	
+
 	if (l == NULL){
 		return 0;
 	}
-	
+
 	listElement* newListElement = (listElement*) malloc (sizeof(listElement));
 
 	if (newListElement == NULL){
@@ -68,7 +68,7 @@ int listPushFront(list* l, void* data){
 	}
 
 	newListElement->data = data;
-	
+
 	if (l->head == NULL){
 		l->head = newListElement;
 		l->tail = newListElement;
@@ -79,9 +79,9 @@ int listPushFront(list* l, void* data){
 		l->head->former = newListElement;
 		newListElement->former = NULL;
 		newListElement->next = l->head;
-		l->head = newListElement;	
+		l->head = newListElement;
 	}
-	
+
 	l->size++;
 
 	return 1;
@@ -96,6 +96,16 @@ int listRemoveElement(list *l, void (*freeFunction)(void*), void* toRemove){
 	else{
 		listElement* former = l->head;
 		if (former->data == toRemove){
+			if (former->next == NULL){
+                l->head = NULL;
+                l->tail = NULL;
+                l->size--;
+                if (freeFunction != NULL){
+                    freeFunction(former->data);
+                }
+                free(former);
+                return 1;
+			}
 			l->head = former->next;
 			former->next->former = NULL;
 			if (l->head == NULL){
@@ -164,7 +174,7 @@ int listRemoveElementIf(list* l, void(*freeFunction)(void*), int (*compareFuncti
 
 			if (freeFunction != NULL){
 				freeFunction(toFree->data);
-			} 
+			}
 			free(toFree);
 			l->size--;
 
@@ -173,7 +183,7 @@ int listRemoveElementIf(list* l, void(*freeFunction)(void*), int (*compareFuncti
 			aux = aux->next;
 		}
 	}
-	
+
 	return 1;
 
 }
@@ -233,11 +243,11 @@ void* listPopLastElement(list* l){
 }
 
 void* listFindElement(list* l, int(*compareFunction)(void*, void*), void* toFind){
-	
+
 	if (l == NULL || compareFunction == NULL || toFind == NULL){
 		return NULL;
 	}
-	
+
 	listElement* aux = l->head;
 
 	while(aux != NULL){
@@ -372,7 +382,7 @@ void listIteratorReset(listIterator* it){
 }
 
 int listIteratorRemoveCurrent(listIterator* it, void(*freeFunction)(void*)){
-	
+
 	if(it == NULL || it->l == NULL || it->l->head == NULL){
 		return 0;
 	}
@@ -401,7 +411,7 @@ int listIteratorRemoveCurrent(listIterator* it, void(*freeFunction)(void*)){
 		it->current = NULL;
 		return 1;
 	}
-	
+
 	l->size--;
 	it->current->former->next = it->current->next;
 	it->current->next->former = it->current->former;
@@ -431,7 +441,7 @@ int listIteratorAddElementAfter(listIterator* it, void* data){
 	if (newElement == NULL){
 		return 0;
 	}
-	
+
 	l->size++;
 	newElement->next = it->current->next;
 	it->current->next->former = newElement;
@@ -446,7 +456,7 @@ int listIteratorAddElementBefore(listIterator* it, void* data){
 	if(it == NULL || it->l == NULL || it->l->head == NULL){
 		return 0;
 	}
-	
+
 	list* l = it->l;
 	if (it->current == l->head){
 		return listPushFront(l, data);
