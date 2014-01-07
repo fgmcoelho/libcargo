@@ -184,3 +184,57 @@ void modifiedHeapClear(modifiedHeap* h, void (*freeFunction)(void*)){
 	free(h);
 
 }
+
+void modifiedHeapIteratorStart(modifiedHeap* h, modifiedHeapIterator* it){
+	if (h == NULL || it == NULL){
+		return;
+	}
+
+	it->h = h;
+	it->index = 0;
+
+}
+
+void* modifiedHeapIteratorGetFirstElement(modifiedHeapIterator* it){
+	if (it == NULL || it->h == NULL || it->h->used == 0){
+		return NULL;
+	}
+
+	return it->h->info[0];
+}
+
+void* modifiedHeapIteratorGetLastElement(modifiedHeapIterator* it){
+	if (it == NULL || it->h == NULL || it->h->used == 0){
+		return NULL;
+	}
+	
+	return it->h->info[it->h->used-1];
+
+}
+
+void* modifiedHeapIteratorGetNextElement(modifiedHeapIterator* it){
+	if (it == NULL || it->h == NULL || it->h->used <= it->index + 1){
+		return NULL;
+	}
+	
+	it->index++;
+	return it->h->info[it->index];
+
+}
+
+void* modifiedHeapIteratorGetCurrentElement(modifiedHeapIterator* it){
+	if (it == NULL || it->h == NULL || it->h->used <= it->index){
+		return NULL;
+	}
+	
+	return it->h->info[it->index];
+
+}
+
+void modifiedHeapIteratorReset(modifiedHeapIterator* it){
+	if (it == NULL || it->h == NULL){
+		return;
+	}
+	it->index = 0;
+}
+

@@ -24,4 +24,19 @@ void modifiedHeapUpdatedValue(modifiedHeap*, void*);
 void modifiedHeapReset(modifiedHeap*);
 void modifiedHeapClear(modifiedHeap*, void (*)(void*));
 
+struct modified_heap_iterator_t{
+	modifiedHeap* h;
+	unsigned index;
+};
+
+typedef struct modified_heap_iterator_t modifiedHeapIterator;
+
+void modifiedHeapIteratorStart(modifiedHeap* l, modifiedHeapIterator* it);
+void* modifiedHeapIteratorGetFirstElement(modifiedHeapIterator*);
+void* modifiedHeapIteratorGetLastElement(modifiedHeapIterator*);
+void* modifiedHeapIteratorGetNextElement(modifiedHeapIterator*);
+void* modifiedHeapIteratorGetCurrentElement(modifiedHeapIterator*);
+void modifiedHeapIteratorReset(modifiedHeapIterator*);
+
+
 #endif
