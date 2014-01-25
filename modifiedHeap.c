@@ -82,9 +82,30 @@ void* modifiedHeapGetFirstElement(modifiedHeap* h){
 
 }
 
-static void heapify(modifiedHeap* h){
+static void parentHeapify(modifiedHeap* h, unsigned start){
 
-	unsigned left, right, current = 0, index;
+    if (start == 0 || start > h->used){
+        return;
+    }
+
+    unsigned parent, current = start;
+    do{
+        parent = (current-1)/2;
+        if(h->compareFunction(h->info[current], h->info[parent]) > 0){
+			void* swap = h->info[parent];
+			h->info[parent] = h->info[current];
+			h->setIndexFunction(h->info[parent], parent);
+			h->info[current] = swap;
+			h->setIndexFunction(h->info[current], current);
+        }
+        current = parent;
+    }while(current != 0);
+
+}
+
+static void childHeapify(modifiedHeap* h, unsigned start){
+
+	unsigned left, right, current = start, index;
 	do{
 		index = current;
 		left = (current * 2) + 1;
@@ -134,7 +155,7 @@ void* modifiedHeapPopFirstElement(modifiedHeap* h){
 	h->setIndexFunction(h->info[0], 0);
 	h->info[h->used] = NULL;
 
-    heapify(h);
+    childHeapify(h, 0);
 
 	return toRet;
 
@@ -148,14 +169,8 @@ void modifiedHeapUpdatedValue(modifiedHeap* h, void* data){
         return;
     }
 
-    void* swap = h->info[0];
-
-    h->info[0] = data;
-    h->setIndexFunction(h->info[0], 0);
-    h->info[index] = swap;
-    h->setIndexFunction(h->info[index], index);
-
-    heapify(h);
+    childHeapify(h, index);
+    parentHeapify(h, index);
 
 }
 
@@ -207,7 +222,7 @@ void* modifiedHeapIteratorGetLastElement(modifiedHeapIterator* it){
 	if (it == NULL || it->h == NULL || it->h->used == 0){
 		return NULL;
 	}
-	
+
 	return it->h->info[it->h->used-1];
 
 }
@@ -216,7 +231,7 @@ void* modifiedHeapIteratorGetNextElement(modifiedHeapIterator* it){
 	if (it == NULL || it->h == NULL || it->h->used <= it->index + 1){
 		return NULL;
 	}
-	
+
 	it->index++;
 	return it->h->info[it->index];
 
@@ -226,7 +241,7 @@ void* modifiedHeapIteratorGetCurrentElement(modifiedHeapIterator* it){
 	if (it == NULL || it->h == NULL || it->h->used <= it->index){
 		return NULL;
 	}
-	
+
 	return it->h->info[it->index];
 
 }
