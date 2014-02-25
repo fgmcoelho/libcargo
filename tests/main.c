@@ -668,6 +668,18 @@ static void testHeap(void){
 
 	toTest = heapGetFirstElement(minHeap);
 	printf("Value on min heap should be: %d and it is %d.\n", minValue, toTest->number);
+	struct heap_test_t* current = heapPopFirstElement(minHeap), *next;
+	do {
+		next = heapPopFirstElement(minHeap);
+		if (next != NULL){
+			if (next->number < current->number){
+				printf("Error on min heap %d is smaller than %d.\n", next->number, current->number);
+				exit(1);
+			}
+			next = current;
+		}
+	}while(next != NULL);
+
 	heapClear(minHeap, free);
 
 }
@@ -792,10 +804,10 @@ static void testRefpointer(){
 }
 
 int main(){
-	testList();
+	//testList();
 	//testVector();
 	//testOrderedList();
-	//testHeap();
+	testHeap();
 	//testPool();
 	//testRefpointer();
 

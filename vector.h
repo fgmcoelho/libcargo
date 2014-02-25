@@ -5,13 +5,9 @@
 
 #define VECTOR_BASE_SIZE 256
 
-struct vector_t {
-	unsigned used;
-	unsigned available;
-	void** indexes;
-};
+struct vector_st;
 
-typedef struct vector_t vector;
+typedef struct vector_st vector;
 
 int vectorPushBack(vector*, void*);
 void vectorClear(vector**, void (*)(void*));

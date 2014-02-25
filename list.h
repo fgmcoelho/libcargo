@@ -3,19 +3,9 @@
 
 #include <stdlib.h>
 
-struct list_element_t{
-	void* data;
-	struct list_element_t* next, *former;
-};
+struct list_st;
 
-typedef struct list_element_t listElement;
-
-struct list_t{
-	unsigned size;
-	listElement* head, *tail;
-};
-
-typedef struct list_t list;
+typedef struct list_st list;
 
 list* listCreate(void);
 unsigned listGetSize(list* );
@@ -29,12 +19,9 @@ void* listFindElement(list* , int(*)(void*, void*), void* );
 int listMergeLists(list** , list** );
 void listClear(list** , void (*)(void*));
 
-struct list_iterator_t{
-	list* l;
-	listElement *current;
-};
+struct list_iterator_st;
 
-typedef struct list_iterator_t listIterator;
+typedef struct list_iterator_st listIterator;
 
 listIterator* listIteratorCreate(list* l);
 void listIteratorStart(list* l, listIterator* it);

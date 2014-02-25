@@ -3,12 +3,9 @@
 
 #include "list.h"
 
-struct pool_t {
-	unsigned sizeOfElements, elementsPerBlock;
-	list *freeRefs, *memoryBlocks;;
-};
+struct pool_st;
 
-typedef struct pool_t pool;
+typedef struct pool_st pool;
 
 pool* poolCreate(unsigned , unsigned );
 void* poolGetElement(pool* );

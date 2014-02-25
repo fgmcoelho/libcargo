@@ -1,5 +1,14 @@
 #include "modifiedHeap.h"
 
+struct modified_heap_st{
+	void** info;
+	int (*compareFunction)(void*, void*);
+	unsigned (*getIndexFunction)(void*);
+	void (*setIndexFunction)(void*, unsigned);
+	unsigned used;
+	unsigned currentSize;
+};
+
 modifiedHeap* modifiedHeapCreate(int (*compareFunction)(void*, void*), unsigned (*getIndexFunction)(void*),
         void (*setIndexFunction)(void*, unsigned)){
 

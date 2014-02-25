@@ -1,5 +1,11 @@
 #include "pool.h"
 
+struct pool_st {
+	unsigned sizeOfElements, elementsPerBlock;
+	list *freeRefs, *memoryBlocks;;
+};
+
+
 pool* poolCreate(unsigned numberOfElements, unsigned sizeOfElements){
 
 	pool* newPool = (pool*) malloc(sizeof(pool));
@@ -36,7 +42,7 @@ pool* poolCreate(unsigned numberOfElements, unsigned sizeOfElements){
 		return NULL;
 	}
 
-	int i = 0;
+	unsigned i = 0;
 	for (i = 0; i < numberOfElements; ++i){
 		if(listPushBack(newPool->freeRefs, (void*)(currentBlock+(i*sizeOfElements))) == 0){
 			listClear(&newPool->freeRefs, NULL);
@@ -74,7 +80,7 @@ void* poolGetElement(pool* p){
 		return NULL;
 	}
 
-	int i = 0;
+	unsigned i = 0;
 	for (i = 0; i < p->elementsPerBlock; ++i){
 		if(listPushBack(tmpList, (void*)(newBlock+(i*p->sizeOfElements))) == 0){
 			listClear(&tmpList, NULL);

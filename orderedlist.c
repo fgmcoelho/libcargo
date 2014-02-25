@@ -1,5 +1,15 @@
-	#include "orderedlist.h"
+#include "orderedlist.h"
 //#include <stdio.h>
+
+struct ordered_list_st{
+	vector* elements;
+	int (*compareFunction)(void*, void*);
+};
+
+struct ordered_list_iterator_st{
+	orderedList* ol;
+	unsigned index;
+};
 
 static unsigned orderedListFindElementIndex(orderedList* , void* , int* );
 

@@ -1,7 +1,7 @@
 TARGET = libcontainers
-LIBS = -lm
+LIBS =
 CC = gcc
-CFLAGS = -g -Wall -shared
+CFLAGS = -g -Wall -Wextra -shared -O2
 
 .PHONY: default all clean
 

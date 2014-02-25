@@ -1,5 +1,11 @@
 #include "vector.h"
 
+struct vector_st {
+	unsigned used;
+	unsigned available;
+	void** indexes;
+};
+
 static inline int vectorExpandIndexesIfNeeded(vector* v){
 	if (v->available  == v->used){
 		unsigned newSize = v->used*2;
@@ -77,7 +83,7 @@ int vectorRemoveElementAt(vector* v, void (*freeFunction)(void*), unsigned at){
 		return 0;
 	}
 	
-	int i;
+	unsigned i;
 	void* dataToClear = v->indexes[at];
 	for (i = at; i < v->used - 1; ++i){
 		v->indexes[i] = v->indexes[i+1];

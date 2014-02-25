@@ -1,14 +1,31 @@
 #include "refcount.h"
 #include <stdlib.h>
 
+struct referenced_pointer_st{
+	unsigned count;
+	void (*freeFunction)(void*);
+};
+
+typedef struct referenced_pointer_st referencedPointerInternal;
+
 #define __REFERENCE_POINTER_JUMP sizeof(referencedPointerInternal)
+struct referenced_pointer_log_entry {
+	char logLine[128-sizeof(void*)-sizeof(int)];
+	int state;
+	void* which;
+};
+
+
+#ifdef REFERENCED_POINTER_FULL_DEBUG
+
+#endif
 
 void* referencedPointerCreate(unsigned size, void (*freeFunction)(void*)){
 	if (size == 0){
 		return NULL;
 	}
 	
-	void *data = malloc(size + sizeof(referencedPointerInternal));
+	void *data = malloc(size + __REFERENCE_POINTER_JUMP);
 	if (data == NULL){
 		return NULL;
 	}

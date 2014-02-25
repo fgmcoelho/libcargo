@@ -5,14 +5,9 @@
 
 #include <stdlib.h>
 
-struct heap_t{
-	void** info;
-	int (*compareFunction)(void*, void*);
-	unsigned used;
-	unsigned currentSize;
-};
+struct heap_st;
 
-typedef struct heap_t heap;
+typedef struct heap_st heap;
 
 heap* heapCreate(int (*)(void*, void*));
 int heapInsert(heap*, void*);

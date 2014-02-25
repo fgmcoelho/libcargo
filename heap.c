@@ -1,6 +1,13 @@
 #include "heap.h"
 #include <stdio.h>
 
+struct heap_st{
+	void** info;
+	int (*compareFunction)(void*, void*);
+	unsigned used;
+	unsigned currentSize;
+};
+
 heap* heapCreate(int (*compareFunction)(void*, void*)){
 
 	heap* newHeap = (heap*)malloc(sizeof(heap));

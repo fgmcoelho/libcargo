@@ -1,13 +1,9 @@
 #ifndef __REFCOUNT_H_GUARD__
 #define __REFCOUNT_H_GUARD__
 
-struct referenced_pointer_t{
-	unsigned count;
-	void (*freeFunction)(void*);
-};
+struct referenced_pointer_st;
 
-typedef struct referenced_pointer_t referencedPointerInternal;
-typedef struct referenced_pointer_t* referencedPointer;
+typedef struct referenced_pointer_st* referencedPointer;
 
 void* referencedPointerCreate(unsigned size, void (*freeFunction)(void*));
 void* referencedPointerRef(void* pt);

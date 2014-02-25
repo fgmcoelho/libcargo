@@ -1,20 +1,13 @@
-#ifndef __HEAP_GUARD_H_
-#define __HEAP_GUARD_H_
+#ifndef __MODIFIED_HEAP_GUARD_H_
+#define __MODIFIED_HEAP_GUARD_H_
 
 #define HEAP_STARTING_SIZE 256
 
 #include <stdlib.h>
 
-struct modified_heap_t{
-	void** info;
-	int (*compareFunction)(void*, void*);
-	unsigned (*getIndexFunction)(void*);
-	void (*setIndexFunction)(void*, unsigned);
-	unsigned used;
-	unsigned currentSize;
-};
+struct modified_heap_st;
 
-typedef struct modified_heap_t modifiedHeap;
+typedef struct modified_heap_st modifiedHeap;
 
 modifiedHeap* modifiedHeapCreate(int (*)(void*, void*), unsigned (*)(void*), void (*)(void*, unsigned));
 int modifiedHeapInsert(modifiedHeap*, void*);

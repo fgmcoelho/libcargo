@@ -1,5 +1,23 @@
 #include "list.h"
 
+struct list_element_st{
+	void* data;
+	struct list_element_st* next, *former;
+};
+
+typedef struct list_element_st listElement;
+
+struct list_st{
+	unsigned size;
+	listElement* head, *tail;
+};
+
+struct list_iterator_st{
+	list* l;
+	listElement *current;
+};
+
+
 list* listCreate(){
 
 	list* newList = (list*) malloc (sizeof(list));
