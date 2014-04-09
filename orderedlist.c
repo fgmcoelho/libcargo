@@ -8,11 +8,15 @@ struct ordered_list_st{
 
 static unsigned orderedListFindElementIndex(orderedList* , void* , int* );
 
-orderedList* orderedListCreate(int (*compareFunction)(void*, void*)){
+orderedList* orderedListCreate(unsigned size, int (*compareFunction)(void*, void*)){
+
+	if (size == 0 || compareFunction == NULL){
+		return NULL;
+	}
 
 	orderedList* newOrderedList = (orderedList*) malloc(sizeof(orderedList));
 	if (newOrderedList != NULL){
-		newOrderedList->elements = vectorCreate();
+		newOrderedList->elements = vectorCreate(size);
 		if (newOrderedList->elements != NULL){
 			newOrderedList->compareFunction = compareFunction;
 		}

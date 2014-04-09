@@ -1,5 +1,5 @@
-#ifndef LIST_H_GUARD__
-#define LIST_H_GUARD__
+#ifndef __LIST_H_GUARD__
+#define __LIST_H_GUARD__
 
 #include <stdlib.h>
 

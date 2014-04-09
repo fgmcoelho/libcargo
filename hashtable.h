@@ -1,5 +1,5 @@
-#ifndef HASHTABLE_H_GUARD__
-#define HASHTABLE_H_GUARD__
+#ifndef __HASHTABLE_H_GUARD__
+#define __HASHTABLE_H_GUARD__
 
 typedef struct hash_table_st hashTable;
 

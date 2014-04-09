@@ -1,9 +1,7 @@
-#ifndef VECTOR_H_GUARD__
-#define VECTOR_H_GUARD__
+#ifndef __VECTOR_H_GUARD__
+#define __VECTOR_H_GUARD__
 
 #include <stdlib.h>
-
-#define VECTOR_BASE_SIZE 256
 
 struct vector_st;
 

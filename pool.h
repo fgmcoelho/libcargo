@@ -1,5 +1,5 @@
-#ifndef _POOL_H_GUARD__
-#define _POOL_H_GUARD__
+#ifndef __POOL_H_GUARD__
+#define __POOL_H_GUARD__
 
 #include "list.h"
 

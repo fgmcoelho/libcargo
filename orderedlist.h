@@ -1,11 +1,11 @@
-#ifndef __ORDEREDLIST_H_GUARD
-#define __ORDEREDLIST_H_GUARD
+#ifndef __ORDEREDLIST_H_GUARD__
+#define __ORDEREDLIST_H_GUARD__
 
 struct ordered_list_st;
 
 typedef struct ordered_list_st orderedList;
 
-orderedList* orderedListCreate(int (*)(void*, void*));
+orderedList* orderedListCreate(unsigned size, int (*compareFunction)(void*, void*));
 int orderedListInsertElement(orderedList*, void*);
 int orderedListRemoveElementAt(orderedList*, void (*)(void*), unsigned);
 int orderedListRemoveElement(orderedList*, void (*)(void*), void* );

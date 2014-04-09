@@ -1,5 +1,5 @@
-#ifndef __MODIFIED_HEAP_GUARD_H_
-#define __MODIFIED_HEAP_GUARD_H_
+#ifndef __MODIFIED_HEAP_H_GUARD__
+#define __MODIFIED_HEAP_H_GUARD__
 
 #define HEAP_STARTING_SIZE 256
 
