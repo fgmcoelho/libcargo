@@ -1,10 +1,6 @@
 #ifndef __ORDEREDLIST_H_GUARD
 #define __ORDEREDLIST_H_GUARD
 
-#include "vector.h"
-
-#include <stdio.h>
-
 struct ordered_list_st;
 
 typedef struct ordered_list_st orderedList;
@@ -18,7 +14,10 @@ void* orderedListGetElementByIndex(orderedList*, unsigned);
 void* orderedListFindElement(orderedList*, void*);
 inline unsigned orderedListGetSize(orderedList* );
 
-struct ordered_list_iterator_st;
+struct ordered_list_iterator_st{
+	orderedList* ol;
+	unsigned index;
+};
 
 typedef struct ordered_list_iterator_st orderedListIterator;
 

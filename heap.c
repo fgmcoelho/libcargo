@@ -1,5 +1,4 @@
 #include "heap.h"
-#include <stdio.h>
 
 struct heap_st{
 	void** info;
@@ -133,20 +132,22 @@ void* heapPopFirstElement(heap* h){
 }
 
 
-void heapClear(heap* h, void (*freeFunction)(void*)){
+void heapClear(heap** h, void (*freeFunction)(void*)){
 	
-	if (h == NULL){
+	if (h == NULL || *h == NULL){
 		return;
 	}
 
 	if (freeFunction != NULL){
 		unsigned i;
-		for (i = 0; i < h->used; ++i){
-			freeFunction(h->info[i]);
+		for (i = 0; i < (*h)->used; ++i){
+			freeFunction((*h)->info[i]);
 		}
 	}
 
-	free(h->info);
-	free(h);
+	free((*h)->info);
+	free((*h));
+
+	*h = NULL;
 
 }

@@ -10,6 +10,6 @@ typedef struct pool_st pool;
 pool* poolCreate(unsigned , unsigned );
 void* poolGetElement(pool* );
 int poolReturnElement(pool* , void* );
-void poolClear(pool*);
+void poolClear(pool**);
 
 #endif

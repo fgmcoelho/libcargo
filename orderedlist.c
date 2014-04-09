@@ -1,14 +1,9 @@
 #include "orderedlist.h"
-//#include <stdio.h>
+#include "vector.h"
 
 struct ordered_list_st{
 	vector* elements;
 	int (*compareFunction)(void*, void*);
-};
-
-struct ordered_list_iterator_st{
-	orderedList* ol;
-	unsigned index;
 };
 
 static unsigned orderedListFindElementIndex(orderedList* , void* , int* );
@@ -36,7 +31,6 @@ int orderedListInsertElement(orderedList* ol, void* data){
 		return 0;
 	}
 
-	//printf ("Trying to insert: %d.\n", *(int*)data);
 	unsigned size = vectorGetSize(ol->elements);
 	if (size == 0){
 		return vectorPushBack(ol->elements, data);
@@ -47,8 +41,6 @@ int orderedListInsertElement(orderedList* ol, void* data){
 	index = ((max + min)/2) + (max + min)%2;
 	do{
 		result = ol->compareFunction(data, vectorGetElementAt(ol->elements, index));
-		//printf("Compared %d with %d [index: %d], result -> %d | min %d | max %d .\n", 
-		//	*(int*)data, *(int*)(vectorGetElementAt(ol->elements, index)), index, result, min, max);
 		
 		if (result < 0){
 			formerIndex = index;
@@ -75,7 +67,6 @@ int orderedListInsertElement(orderedList* ol, void* data){
 			index = min;
 		}
 	}
-	//printf("Inserting element at %d.\n", index);
 
 	return vectorAddElementAt(ol->elements, data, index);
 
@@ -122,8 +113,6 @@ void* orderedListGetElementAt(orderedList* ol, unsigned at){
 
 static unsigned orderedListFindElementIndex(orderedList* ol, void* data, int* searchResult){
 	
-	//printf ("Trying to find: %s.\n", (char*)data);
-	
 	unsigned size = vectorGetSize(ol->elements);
 	if (size == 0){
 		*searchResult = 0;
@@ -135,8 +124,6 @@ static unsigned orderedListFindElementIndex(orderedList* ol, void* data, int* se
 	index = (max + min)/2;
 	do{
 		result = ol->compareFunction(data, vectorGetElementAt(ol->elements, index));
-		//printf("Compared %s with %s [index: %d], result -> %d | min %d | max %d .\n", 
-		//	data, vectorGetElementAt(ol->elements, index), index, result, min, max);
 
 		if (result < 0){
 			max = index -1;
@@ -240,5 +227,3 @@ void* orderedListIteratorGetCurrentElement(orderedListIterator* it){
 void orderedListIteratorReset(orderedListIterator* it){
 	it->index = 0;
 }
-
-

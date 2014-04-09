@@ -340,7 +340,7 @@ int testVector(){
 		(char*)vectorGetElementAt(v, 1200));
 
 	vectorClear(&v, NULL);
-	poolClear(p);
+	poolClear(&p);
 
 	v = vectorCreate();
 	if (v == NULL){
@@ -676,19 +676,21 @@ static void testHeap(void){
 				printf("Error on min heap %d is smaller than %d.\n", next->number, current->number);
 				exit(1);
 			}
+			free(next);
 			next = current;
 		}
 	}while(next != NULL);
+	free(current);
 
-	heapClear(minHeap, free);
+	heapClear(&minHeap, free);
 
 }
 
 
 static void testPool(){
 	
-	const int poolElementsCount = 0x00FFFFFF;
-	pool* myPool = poolCreate(poolElementsCount, sizeof(int));
+	const int poolElementsSize = 0x00FFFF;
+	pool* myPool = poolCreate(256, poolElementsSize);
 	if(myPool == NULL){
 		printf("Error starting pool.\n");
 		exit(1);
@@ -700,7 +702,7 @@ static void testPool(){
 	while(poolGetElement(myPool) != NULL);
 	printf("Pool is full at the limit of memory, gonna free it.\n");
 
-	poolClear(myPool);
+	poolClear(&myPool);
 
 }
 
@@ -804,12 +806,12 @@ static void testRefpointer(){
 }
 
 int main(){
-	//testList();
-	//testVector();
-	//testOrderedList();
+	testList();
+	testVector();
+	testOrderedList();
 	testHeap();
-	//testPool();
-	//testRefpointer();
+	testPool();
+	testRefpointer();
 
 	return 0;
 }

@@ -114,10 +114,16 @@ int poolReturnElement(pool* p, void* data){
 
 }
 
-void poolClear(pool* p){
+void poolClear(pool** p){
 
-	listClear(&p->freeRefs, NULL);
-	listClear(&p->memoryBlocks, free);
-	free(p);
+	if (p == NULL || *p == NULL){
+		return;
+	}
+
+	listClear(&(*p)->freeRefs, NULL);
+	listClear(&(*p)->memoryBlocks, free);
+	free(*p);
+
+	*p = NULL;
 }
 

@@ -1,7 +1,15 @@
-TARGET = libcontainers
+MAJOR = 1
+MINOR = 0
+PATCH = 0
+TARGET = libcontainers.so
 LIBS =
 CC = gcc
-CFLAGS = -g -Wall -Wextra -shared -O2
+CFLAGS = -Wall -Wextra
+ifeq ($(DEBUG),1)
+CFLAGS += -g -O0
+else 
+CFLAGS += -O2
+endif
 
 .PHONY: default all clean
 
@@ -11,14 +19,12 @@ all: default
 OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
 HEADERS = $(wildcard *.h)
 
-%.o: %.c $(HEADERS)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-.PRECIOUS: $(TARGET) $(OBJECTS)
-
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) $(LIBS) $(OBJECTS) -o $@.so
+	$(CC) $(CFLAGS) -fPIC -shared -o $@ $^ $(LIBS)
+
+%.o: %.c 
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	-rm -f *.o
-	-rm -f $(TARGET).so
+	-rm -f $(TARGET)

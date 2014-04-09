@@ -19,7 +19,10 @@ void* listFindElement(list* , int(*)(void*, void*), void* );
 int listMergeLists(list** , list** );
 void listClear(list** , void (*)(void*));
 
-struct list_iterator_st;
+struct list_iterator_st {
+	list* l;
+	void *current;
+};
 
 typedef struct list_iterator_st listIterator;
 

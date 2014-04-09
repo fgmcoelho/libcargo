@@ -3,10 +3,10 @@
 struct modified_heap_st{
 	void** info;
 	int (*compareFunction)(void*, void*);
-	unsigned (*getIndexFunction)(void*);
-	void (*setIndexFunction)(void*, unsigned);
 	unsigned used;
 	unsigned currentSize;
+	unsigned (*getIndexFunction)(void*);
+	void (*setIndexFunction)(void*, unsigned);
 };
 
 modifiedHeap* modifiedHeapCreate(int (*compareFunction)(void*, void*), unsigned (*getIndexFunction)(void*),
@@ -191,21 +191,23 @@ void modifiedHeapReset(modifiedHeap* h){
     h->used = 0;
 }
 
-void modifiedHeapClear(modifiedHeap* h, void (*freeFunction)(void*)){
+void modifiedHeapClear(modifiedHeap** h, void (*freeFunction)(void*)){
 
-	if (h == NULL){
+	if (h == NULL || *h == NULL){
 		return;
 	}
 
 	if (freeFunction != NULL){
 		unsigned i;
-		for (i = 0; i < h->used; ++i){
-			freeFunction(h->info[i]);
+		for (i = 0; i < (*h)->used; ++i){
+			freeFunction((*h)->info[i]);
 		}
 	}
 
-	free(h->info);
-	free(h);
+	free((*h)->info);
+	free((*h));
+
+	*h = NULL;
 
 }
 

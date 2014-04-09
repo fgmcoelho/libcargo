@@ -15,14 +15,14 @@ void* modifiedHeapGetFirstElement(modifiedHeap*);
 void* modifiedHeapPopFirstElement(modifiedHeap*);
 void modifiedHeapUpdatedValue(modifiedHeap*, void*);
 void modifiedHeapReset(modifiedHeap*);
-void modifiedHeapClear(modifiedHeap*, void (*)(void*));
+void modifiedHeapClear(modifiedHeap**, void (*)(void*));
 
-struct modified_heap_iterator_t{
+struct modified_heap_iterator_st{
 	modifiedHeap* h;
 	unsigned index;
 };
 
-typedef struct modified_heap_iterator_t modifiedHeapIterator;
+typedef struct modified_heap_iterator_st modifiedHeapIterator;
 
 void modifiedHeapIteratorStart(modifiedHeap* l, modifiedHeapIterator* it);
 void* modifiedHeapIteratorGetFirstElement(modifiedHeapIterator*);

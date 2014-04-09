@@ -12,12 +12,6 @@ struct list_st{
 	listElement* head, *tail;
 };
 
-struct list_iterator_st{
-	list* l;
-	listElement *current;
-};
-
-
 list* listCreate(){
 
 	list* newList = (list*) malloc (sizeof(list));
@@ -368,12 +362,12 @@ void* listIteratorGetLastElement(listIterator* it){
 
 void* listIteratorGetNextElement(listIterator* it){
 
-	if (it == NULL || it->current == NULL || it->current->next == NULL){
+	if (it == NULL || it->current == NULL || ((listElement*)it->current)->next == NULL){
 		return NULL;
 	}
 	else{
-		it->current = it->current->next;
-		return it->current->data;
+		it->current = ((listElement*)it->current)->next;
+		return ((listElement*)it->current)->data;
 	}
 
 }
@@ -384,7 +378,7 @@ void* listIteratorGetCurrentElement(listIterator* it){
 		return NULL;
 	}
 	else{
-		return it->current->data;
+		return ((listElement*)it->current)->data;
 	}
 
 }
@@ -431,13 +425,13 @@ int listIteratorRemoveCurrent(listIterator* it, void(*freeFunction)(void*)){
 	}
 
 	l->size--;
-	it->current->former->next = it->current->next;
-	it->current->next->former = it->current->former;
+	((listElement*)it->current)->former->next = ((listElement*)it->current)->next;
+	((listElement*)it->current)->next->former = ((listElement*)it->current)->former;
 	if (freeFunction != NULL){
-		freeFunction(it->current->data);
+		freeFunction(((listElement*)it->current)->data);
 	}
 	toFree = it->current;
-	it->current = it->current->next;
+	it->current = ((listElement*)it->current)->next;
 	free(toFree);
 
 	return 1;
@@ -461,10 +455,10 @@ int listIteratorAddElementAfter(listIterator* it, void* data){
 	}
 
 	l->size++;
-	newElement->next = it->current->next;
-	it->current->next->former = newElement;
+	newElement->next = ((listElement*)it->current)->next;
+	((listElement*)it->current)->next->former = newElement;
 	newElement->former = it->current;
-	it->current->next = newElement;
+	((listElement*)it->current)->next = newElement;
 
 	return 1;
 
@@ -486,10 +480,10 @@ int listIteratorAddElementBefore(listIterator* it, void* data){
 	}
 
 	l->size++;
-	it->current->former->next = newElement;
-	newElement->former = it->current->former;
+	((listElement*)it->current)->former->next = newElement;
+	newElement->former = ((listElement*)it->current)->former;
 	newElement->next = it->current;
-	it->current->former = newElement;
+	((listElement*)it->current)->former = newElement;
 
 	return 1;
 
