@@ -114,20 +114,24 @@ inline unsigned vectorGetSize(vector* v){
 	}
 }
 
-vector* vectorCreate(void){
+vector* vectorCreate(unsigned vectorSize){
+	if (vectorSize == 0){
+		return NULL;
+	}
+
 	vector* newVector = (vector*) malloc (sizeof(vector));
 	if (newVector == NULL){
 		return NULL;
 	}
 	
-	newVector->indexes = (void**) malloc(sizeof(void*)*VECTOR_BASE_SIZE);
+	newVector->indexes = (void**) malloc(sizeof(void*) * vectorSize);
 	if (newVector->indexes == NULL){
 		free(newVector);
 		return NULL;
 	}
 	
 	newVector->used = 0;
-	newVector->available = VECTOR_BASE_SIZE;
+	newVector->available = vectorSize;
 
 	return newVector;
 }

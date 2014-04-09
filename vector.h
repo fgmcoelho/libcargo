@@ -14,8 +14,7 @@ void vectorClear(vector**, void (*)(void*));
 int vectorRemoveElementAt(vector*, void(*)(void*), unsigned);
 inline void* vectorGetElementAt(vector*, unsigned);
 inline unsigned vectorGetSize(vector* );
-vector* vectorCreate(void);
-void vectorInialize(vector*);
+vector* vectorCreate(unsigned vectorSize);
 int vectorAddElementAt(vector* , void* , unsigned );
 
 #endif
