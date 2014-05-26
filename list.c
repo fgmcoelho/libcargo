@@ -21,6 +21,8 @@ list* listCreate(){
 		newList->tail = NULL;
 	}
 
+	
+
 	return newList;
 }
 

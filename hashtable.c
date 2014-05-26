@@ -50,7 +50,7 @@ struct hash_table_st{
 	hashEntry** info;
 };
 
-static unsigned long hashTableCalculateIndex(void* keyData, unsigned size, unsigned modToUse){
+static unsigned long hashTableCalculateIndex(void* keyData, unsigned size, unsigned long modToUse){
 	
 	unsigned long indexHash = 0;
 	unsigned i, j;
@@ -65,6 +65,10 @@ static unsigned long hashTableCalculateIndex(void* keyData, unsigned size, unsig
 		((unsigned char*)&indexHash)[i] = hashByte;
 		firstByte++;
 	}
+
+	printf("Index for %s (size %u) is %lu (with mod [%lu]: %lu).\n", (char*)keyData, size, indexHash, modToUse, 
+			indexHash % modToUse);
+	fflush(stdout);
 
 	return indexHash % modToUse;
 
@@ -103,10 +107,11 @@ static int hashTableSlotContains(hashEntry* base, hashEntry* toSearch){
 static int hashTableFindIndexAndInsert(hashEntry** entries, hashEntry* entryToUse, unsigned* collisions, unsigned long index){
 	
 	*collisions = 0;
-	//printf("Placing %s (key: %s) at %ld.\n", (char*)entryToUse->data, (char*) entryToUse->key->bytes, index);
+	printf("Placing %s (key: %s) at %ld.\n", (char*)entryToUse->data, (char*) entryToUse->key->bytes, index);
+	fflush(stdout);
 	if (entries[index] != NULL){
 		if (hashTableSlotContains(entries[index], entryToUse) == 1){
-			//printf("Item already inserted");
+			printf("Item already inserted");
 			return 0;
 		}
 		else{
@@ -124,12 +129,14 @@ static int hashTableFindIndexAndInsert(hashEntry** entries, hashEntry* entryToUs
 				}
 				i++;
 			} while (aux != NULL);
-			//printf("Inserted at slot %u.\n", i);
+			printf("Inserted at slot %u.\n", i);
+			fflush(stdout);
 		}
 	}
 	else{
 		entries[index] = entryToUse;
-		//printf("Inserted the first slot.\n");
+		printf("Inserted the first slot.\n");
+		fflush(stdout);
 	}
 
 	return 1;
@@ -154,16 +161,17 @@ static int hashTableResize(hashTable* h, unsigned sizeFactor){
 			hashEntry* aux = h->info[i], *next;
 
 			while (aux != NULL){
+				printf("Replacing element of key [%s] (value %s) | Size: %u\n", (char*)aux->key->bytes, (char*)aux->data, 
+						aux->key->size);
+				fflush(stdout);
 				unsigned long index = hashTableCalculateIndex(aux->key->bytes, aux->key->size, newSize);
 				next = aux->next;
 				aux->next = NULL;
-				hashTableFindIndexAndInsert(newInfo, aux, &collisionsCount, index);
+				if(hashTableFindIndexAndInsert(newInfo, aux, &collisionsCount, index) == 0){
+					printf("Oh fuck.\n");
+				}
 				if (maxCollisions < collisionsCount){
 					maxCollisions = collisionsCount;
-				}
-				if (maxCollisions > HASH_TABLE_MAX_COLLISIONS){
-					free(newInfo);
-					return hashTableResize(h, sizeFactor * HASH_TABLE_RESIZE_DOUBLE);
 				}
 				aux = next;
 			}
@@ -174,6 +182,10 @@ static int hashTableResize(hashTable* h, unsigned sizeFactor){
 	free(h->info);
 	h->info = newInfo;
 	h->resizeAt = (newSize * 3) / 4;
+	
+	if (maxCollisions > HASH_TABLE_MAX_COLLISIONS){
+		return hashTableResize(h, HASH_TABLE_RESIZE_DOUBLE);
+	}
 	
 	return 1;
 }
@@ -239,6 +251,8 @@ int hashTableInsertElement(hashTable* h, void* keyData, unsigned keySize, void* 
 		return 0;
 	}
 
+	printf("Received from pool: Key = %p | entry = %p.\n", newKey, newEntry);
+
 	unsigned long index = hashTableCalculateIndex(keyData, keySize, h->size);
 	newKey->bytes = keyData;
 	newKey->size = keySize;
@@ -247,10 +261,13 @@ int hashTableInsertElement(hashTable* h, void* keyData, unsigned keySize, void* 
 	newEntry->data = data;
 	newEntry->next = NULL;
 	
+	printf("Created new element: Key %s / Data %s / Size %u from reveived information: Key %s / Data %s / Size %u\n", 
+		(char*)newKey->bytes, (char*)newEntry->data, newKey->size, (char*) keyData, (char*) data, keySize);
+	fflush(stdout);
 	unsigned collisionsCount;
 	if(hashTableFindIndexAndInsert(h->info, newEntry, &collisionsCount, index) == 0){
 		poolReturnElement(h->keysPool, newKey);
-		poolReturnElement(h->entriesPool, newKey);
+		poolReturnElement(h->entriesPool, newEntry);
 		return 1;
 	}
 
@@ -320,7 +337,7 @@ void* hashTableGetElement(hashTable* h, void* keyData, unsigned keySize){
 
 	hashEntry* base = h->info[index];
 	while(base != NULL){
-		//printf("Comparing %s [%u] to %s [%u].\n", (char*)keyData, keySize, (char*)base->key->bytes, base->key->size);
+		printf("Comparing %s [%u] to %s [%u].\n", (char*)keyData, keySize, (char*)base->key->bytes, base->key->size);
 		if(hashKeyCompare(base->key, &searchingKey) == 1){
 			return base->data;
 		}

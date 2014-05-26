@@ -1,5 +1,7 @@
 #include "pool.h"
 
+#include <stdio.h>
+
 struct pool_st {
 	unsigned sizeOfElements, elementsPerBlock;
 	list *freeRefs, *memoryBlocks;;
@@ -44,7 +46,7 @@ pool* poolCreate(unsigned numberOfElements, unsigned sizeOfElements){
 
 	unsigned i = 0;
 	for (i = 0; i < numberOfElements; ++i){
-		if(listPushBack(newPool->freeRefs, (void*)(currentBlock+(i*sizeOfElements))) == 0){
+		if(listPushBack(newPool->freeRefs, (void*)(currentBlock + (i * sizeOfElements))) == 0){
 			listClear(&newPool->freeRefs, NULL);
 			listClear(&newPool->memoryBlocks, NULL);
 			free(currentBlock);
@@ -70,10 +72,13 @@ void* poolGetElement(pool* p){
 		return elementToReturn;
 	}
 
+	printf("pool resize!\n");
 	void* newBlock = malloc(p->sizeOfElements * p->elementsPerBlock);
 	if (newBlock == NULL){
 		return NULL;
 	}
+	printf("New block at %p, size: %u.\n", newBlock, p->sizeOfElements * p->elementsPerBlock);
+
 	list* tmpList = listCreate();
 	if (tmpList == NULL){
 		free(newBlock);
@@ -82,7 +87,7 @@ void* poolGetElement(pool* p){
 
 	unsigned i = 0;
 	for (i = 0; i < p->elementsPerBlock; ++i){
-		if(listPushBack(tmpList, (void*)(newBlock+(i*p->sizeOfElements))) == 0){
+		if(listPushBack(tmpList, (void*)(newBlock + (i * p->sizeOfElements))) == 0){
 			listClear(&tmpList, NULL);
 			free(newBlock);
 			return NULL;
