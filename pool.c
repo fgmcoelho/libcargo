@@ -72,12 +72,10 @@ void* poolGetElement(pool* p){
 		return elementToReturn;
 	}
 
-	printf("pool resize!\n");
 	void* newBlock = malloc(p->sizeOfElements * p->elementsPerBlock);
 	if (newBlock == NULL){
 		return NULL;
 	}
-	printf("New block at %p, size: %u.\n", newBlock, p->sizeOfElements * p->elementsPerBlock);
 
 	list* tmpList = listCreate();
 	if (tmpList == NULL){

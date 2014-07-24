@@ -1,7 +1,7 @@
 MAJOR = 1
 MINOR = 0
 PATCH = 0
-TARGET = libcontainers.so
+TARGET = libcargo.so
 LIBS =
 CC = gcc
 CFLAGS = -Wall -Wextra
@@ -9,6 +9,13 @@ ifeq ($(DEBUG),1)
 CFLAGS += -g -O0
 else 
 CFLAGS += -O2
+endif
+
+ifeq ($(PROFILE),1)
+CFLAGS += -pg
+LIBS += -lc_p
+else
+LIBS += 
 endif
 
 .PHONY: default all clean
