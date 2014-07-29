@@ -1,0 +1,36 @@
+LIBCARGO
+
+Libcargo is a simple C containers library. It is entitled simple because:
+1) No external dependecies. All it uses is stdlib. As a matter of fact, you 
+could recompile it by providing implementations for free, malloc and realloc
+and by defining NULL.
+
+2) Always use an the most complete type. Some container libraries provide
+several different types, such as single linked list and double linked list.
+Libcargo will provide you with a list implementation that is the most com-
+plete (double linked with references to head and tail).
+
+3) Always use generic types. Every container stores void pointers, contai-
+ners that are ordered receive their ordering functions by pointers and the
+ones that uses keys accept any key.
+
+4) All the containers will automatically expand without bothering you until
+there is no more memory remaining.
+
+Provided containers:
+
+- List: A container that keeps elements ordered as they are inserted. It is
+possible to insert elements in the front or in the back of the list. It is
+also possible to insert or remove elements using an iterator.
+- Vector: Similar to a list, but provides an index interface.
+- Ordered List: A list that keeps elements ordered according to a given compare
+function.
+- Heap: A binary heap. The behavior (max heap or min heap) is defined by a 
+given compare function.
+- Modified Heap: Same as the heap, but allows you to update the value of an
+element. You need to provide and interface to update and keep an index in the 
+used struct. It is used in some special cases, such as A*.
+- Hash: A hash table that uses a pearson hash function. It handles collisions
+and resize, so it is not as fast as some other implementations.
+- Pool: A container used to pre allocate memory.
+
