@@ -10,7 +10,7 @@ int orderedListInsertElement(orderedList*, void*);
 int orderedListRemoveElementAt(orderedList*, void (*)(void*), unsigned);
 int orderedListRemoveElement(orderedList*, void (*)(void*), void* );
 void orderedListClear(orderedList**, void (*)(void*));
-void* orderedListGetElementByIndex(orderedList*, unsigned);
+void* orderedListGetElementAt(orderedList*, unsigned);
 void* orderedListFindElement(orderedList*, void*);
 inline unsigned orderedListGetSize(orderedList* );
 

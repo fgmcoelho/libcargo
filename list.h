@@ -15,6 +15,8 @@ int listRemoveElement(list* , void(*)(void*), void* );
 int listRemoveElementIf(list*, void(*)(void*), int (*)(void*));
 void* listPopFirstElement(list*);
 void* listPopLastElement(list*);
+void* listGetFirstElement(list*);
+void* listGetLastElement(list*);
 void* listFindElement(list* , int(*)(void*, void*), void* );
 int listMergeLists(list** , list** );
 void listClear(list** , void (*)(void*));

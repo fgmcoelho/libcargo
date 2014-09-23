@@ -111,14 +111,14 @@ int listRemoveElement(list *l, void (*freeFunction)(void*), void* toRemove){
 		listElement* former = l->head;
 		if (former->data == toRemove){
 			if (former->next == NULL){
-                l->head = NULL;
-                l->tail = NULL;
-                l->size--;
-                if (freeFunction != NULL){
-                    freeFunction(former->data);
-                }
-                free(former);
-                return 1;
+				l->head = NULL;
+				l->tail = NULL;
+				l->size--;
+				if (freeFunction != NULL){
+					freeFunction(former->data);
+				}
+				free(former);
+				return 1;
 			}
 			l->head = former->next;
 			former->next->former = NULL;
@@ -228,6 +228,21 @@ void* listPopFirstElement(list* l){
 	}
 
 }
+
+void* listGetFirstElement(list* l){
+	if (l == NULL){
+		return NULL;
+	}
+	return l->head->data;
+}
+
+void* listGetLastElement(list* l){
+	if (l == NULL){
+		return NULL;
+	}
+	return l->tail->data;
+}
+
 
 void* listPopLastElement(list* l){
 
