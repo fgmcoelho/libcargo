@@ -13,28 +13,22 @@ struct list_st{
 };
 
 list* listCreate(){
-
 	list* newList = (list*) malloc (sizeof(list));
 	if (newList != NULL){
 		newList->size = 0;
 		newList->head = NULL;
 		newList->tail = NULL;
 	}
-
-	
-
 	return newList;
 }
 
 unsigned listGetSize(list* l){
-
 	if (l == NULL){
 		return 0;
 	}
 	else{
 		return l->size;
 	}
-
 }
 
 int listPushBack(list* l, void* data){
@@ -48,7 +42,6 @@ int listPushBack(list* l, void* data){
 	if (newListElement == NULL){
 		return 0;
 	}
-
 	newListElement->data = data;
 
 	if (l->head == NULL){
@@ -76,13 +69,11 @@ int listPushFront(list* l, void* data){
 	}
 
 	listElement* newListElement = (listElement*) malloc (sizeof(listElement));
-
 	if (newListElement == NULL){
 		return 0;
 	}
 
 	newListElement->data = data;
-
 	if (l->head == NULL){
 		l->head = newListElement;
 		l->tail = newListElement;
@@ -230,14 +221,14 @@ void* listPopFirstElement(list* l){
 }
 
 void* listGetFirstElement(list* l){
-	if (l == NULL){
+	if (l == NULL || l->head == NULL){
 		return NULL;
 	}
 	return l->head->data;
 }
 
 void* listGetLastElement(list* l){
-	if (l == NULL){
+	if (l == NULL || l->tail == NULL){
 		return NULL;
 	}
 	return l->tail->data;
@@ -391,7 +382,7 @@ void* listIteratorGetNextElement(listIterator* it){
 
 void* listIteratorGetCurrentElement(listIterator* it){
 
-	if(it == NULL){
+	if(it == NULL || it->current == NULL){
 		return NULL;
 	}
 	else{
@@ -402,7 +393,7 @@ void* listIteratorGetCurrentElement(listIterator* it){
 
 void listIteratorReset(listIterator* it){
 
-	if (it == NULL){
+	if (it == NULL || it->l == NULL){
 		return;
 	}
 
