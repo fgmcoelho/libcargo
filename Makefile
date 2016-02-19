@@ -7,7 +7,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra
 ifeq ($(DEBUG),1)
 CFLAGS += -g -O0
-else 
+else
 CFLAGS += -O2
 endif
 
@@ -15,7 +15,7 @@ ifeq ($(PROFILE),1)
 CFLAGS += -pg
 LIBS += -lc_p
 else
-LIBS += 
+LIBS +=
 endif
 
 .PHONY: default all clean
@@ -29,8 +29,8 @@ HEADERS = $(wildcard *.h)
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) -fPIC -shared -o $@ $^ $(LIBS)
 
-%.o: %.c 
-	$(CC) $(CFLAGS) -c $< -o $@
+%.o: %.c
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
 
 clean:
 	-rm -f *.o

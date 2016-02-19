@@ -14,7 +14,7 @@ heap* heapCreate(int (*compareFunction)(void*, void*)){
 	if (newHeap == NULL){
 		return NULL;
 	}
-	
+
 	newHeap->info = (void**) malloc(HEAP_STARTING_SIZE*sizeof(void*));
 	if (newHeap->info == NULL){
 		free(newHeap);
@@ -51,7 +51,7 @@ int heapInsert(heap* h, void* data){
 	}
 
 	h->info[h->used] = data;
-	
+
 	unsigned index, parentIndex;
 	index = h->used;
 	do{
@@ -77,9 +77,9 @@ void* heapGetFirstElement(heap* h){
 	if (h == NULL || h->used == 0){
 		return NULL;
 	}
-	
+
 	return h->info[0];
-	
+
 }
 
 void* heapPopFirstElement(heap* h){
@@ -87,9 +87,9 @@ void* heapPopFirstElement(heap* h){
 	if (h == NULL || h->used == 0){
 		return NULL;
 	}
-	
+
 	void* toRet = h->info[0];
-	
+
 	if (h->used == 1){
 		h->info[0] = NULL;
 		h->used--;
@@ -99,13 +99,13 @@ void* heapPopFirstElement(heap* h){
 	h->used--;
 	h->info[0] = h->info[h->used];
 	h->info[h->used] = NULL;
-	
+
 	unsigned left, right, current = 0, index;
 	do{
 		index = current;
 		left = (current * 2) + 1;
 		right = (current * 2) + 2;
-		
+
 		if (left < h->used && h->compareFunction(h->info[left], h->info[current]) > 0){
 			if (right < h->used && h->compareFunction(h->info[right], h->info[current]) > 0 && 
 					h->compareFunction(h->info[right], h->info[left]) > 0){
@@ -131,9 +131,15 @@ void* heapPopFirstElement(heap* h){
 
 }
 
+unsigned heapGetSize(heap* h){
+    if (h == NULL){
+        return 0;
+    }
+    return h->used;
+}
 
 void heapClear(heap** h, void (*freeFunction)(void*)){
-	
+
 	if (h == NULL || *h == NULL){
 		return;
 	}

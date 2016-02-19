@@ -13,6 +13,7 @@ heap* heapCreate(int (*)(void*, void*));
 int heapInsert(heap*, void*);
 void* heapGetFirstElement(heap*);
 void* heapPopFirstElement(heap*);
+unsigned heapGetSize(heap*);
 void heapClear(heap**, void (*)(void*));
 
 #endif
