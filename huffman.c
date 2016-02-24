@@ -3,6 +3,9 @@
 // TODO: REMOVE LATER
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "huffman.h"
 #include "heap.h"
@@ -73,7 +76,7 @@ struct huffman_st {
     int finished, maxSize;
 };
 
-void print_byte(unsigned char byte){
+static void print_byte(unsigned char byte){
     int i;
     for(i = 7; i >= 0; --i){
         if (byte & (1 << i)){
@@ -85,6 +88,24 @@ void print_byte(unsigned char byte){
     }
     printf("\n");
 }
+
+static void print_full_code(unsigned char* code, unsigned char byte){
+    printf("Code for \"%c\" is: ", byte);
+    int i, j;
+    for (i = 3; i >= 0; i--){
+        for (j = 7; j >= 0; j--){
+            if (code[i] & (1 << j)){
+                printf("1");
+            }
+            else{
+                printf("0");
+            }
+        }
+    }
+
+    printf("\n");
+}
+
 
 static void print_code(unsigned char* code, int size, unsigned char byte){
     printf("Code for \"%c\" is: ", byte);
@@ -113,27 +134,41 @@ static void print_code(unsigned char* code, int size, unsigned char byte){
     printf("\n");
 }
 
+static int compare(unsigned char* bytes, unsigned char* uncompressed, huffmanOutput* output){
+    int i;
+    for (i = 0; i < output->originalSize; ++i){
+        if (bytes[i] != uncompressed[i]){
+            printf("%c different from %c\n", bytes[i], uncompressed[i]);
+            return i;
+        }
+    }
+    return 0;
+}
+
 static void fillHuffmanByNode(huffman* h, huffmanNode* node, int isLeft){
     // root
     if (node->parent == NULL){
         node->code[3] = node->code[2] = node->code[1] = node->code[0] = 0;
-        node->size = 0;
     }
     else{
+        if (node->parent == h->root){
+            node->size = 0;
+        }
+        else{
+            node->size = node->parent->size + 1;
+            if (h->maxSize < node->size){
+                h->maxSize = node->size;
+            }
+        }
         node->code[3] = node->parent->code[3];
         node->code[2] = node->parent->code[2];
         node->code[1] = node->parent->code[1];
         node->code[0] = node->parent->code[0];
-        node->size = node->parent->size + 1;
         if (isLeft == 0){
             unsigned codeIndex = node->size/8;
             unsigned codeBit = (node->size % 8);
             node->code[codeIndex] |= 1 << codeBit;
         }
-    }
-
-    if (h->maxSize < node->size){
-        h->maxSize = node->size;
     }
 
     if (node->left == NULL && node->right == NULL){
@@ -220,9 +255,7 @@ int huffmanFinish(huffman* h){
 
     heap* secondQueue = heapCreate(huffmanHeapCmp);
     huffmanNode* first, *second;
-    printf("Starting the Queue search! %u\n", heapGetSize(firstQueue));
     while(heapGetSize(firstQueue) + heapGetSize(secondQueue) > 1){
-        //printf("Seeking the queues %u %u\n", heapGetSize(firstQueue), heapGetSize(secondQueue));
         huffmanNode* firstTry = heapGetFirstElement(firstQueue);
         if (firstTry == NULL){
             first = heapPopFirstElement(secondQueue);
@@ -325,16 +358,11 @@ huffmanOutput* huffmanEncode(huffman* h, unsigned char* data, unsigned dataSize)
             free(resultBuffer);
             return NULL;
         }
-        //printf("Encodiding %c: ", h->table[data[inputIndex]].node->byte);
         for (codeSize = 0; codeSize <= h->table[data[inputIndex]].node->size; codeSize++){
             unsigned codeIndex = codeSize/8;
             unsigned codeBit = (codeSize % 8);
             if (h->table[data[inputIndex]].node->code[codeIndex] & (1 << codeBit)){
                 resultBuffer[outputIndex] |= 1 << bitIndex;
-                //printf("1");
-            }
-            else{
-                //printf("0");
             }
             if (bitIndex == 0){
                 bitIndex = 7;
@@ -345,10 +373,8 @@ huffmanOutput* huffmanEncode(huffman* h, unsigned char* data, unsigned dataSize)
                 bitIndex--;
             }
         }
-        //printf("\n");
     }
 
-    printf("Compressed result: %u.\n", outputIndex);
     output->buffer = realloc(resultBuffer, outputIndex + 1);
     if (output->buffer == NULL){
         free(resultBuffer);
@@ -375,28 +401,22 @@ unsigned char* huffmanDecode(huffman* h, huffmanOutput* output, unsigned* result
 
     int i = 0, bitIndex = 7, compressedIndex = 0;
     huffmanNode* node = h->root;
-    print_byte(output->buffer[compressedIndex]);
     while(i < output->originalSize){
         if (node->left == NULL && node->right == NULL){
-            printf("Found: %c\n", node->byte);
             resultBuffer[i] = node->byte;
             i++;
             node = h->root;
         }
         else{
             if (output->buffer[compressedIndex] & (1 << bitIndex)){
-                printf("right ");
                 node = node->right;
             }
             else{
-                printf("left ");
                 node = node->left;
             }
             if (bitIndex == 0){
                 bitIndex = 7;
                 compressedIndex++;
-                printf("\n");
-                print_byte(output->buffer[compressedIndex]);
             }
             else{
                 bitIndex--;
@@ -410,10 +430,9 @@ unsigned char* huffmanDecode(huffman* h, huffmanOutput* output, unsigned* result
 
 static void printTree(huffmanNode* node, int level){
     if (node->left == NULL && node->right == NULL){
-        print_code(node->code, node->size, node->byte);
+        print_full_code(node->code, node->byte);
     }
     else{
-        //printf("Connect Node!\n");
         printTree(node->left, level + 1);
         printTree(node->right, level + 1);
     }
@@ -425,14 +444,33 @@ static void printHuffman(huffman* h){
     printTree(h->root, 0);
 }
 
-int main(){
-    char testString[] = "j'aime aller sur le bord de l'eau les jeudis ou les jours impairs";
+int main(int argc, const char* argv[]){
+
+    if (argc != 2){
+        printf("Error, you need to pass a file as an argument.\n");
+        return 1;
+    }
+
+    FILE* fp = fopen(argv[1], "r");
+    if (fp == NULL){
+        printf("Error opening file.\n");
+        return 1;
+    }
+
+    struct stat st;
+    stat(argv[1], &st);
+
+    unsigned char* bytes = malloc(st.st_size);
+    fread(bytes, st.st_size, 1, fp);
+    fclose(fp);
+
+
     huffman* huff = huffmanCreate();
     if (huff == NULL){
         printf("Error creating the huffman struct!\n");
         return 1;
     }
-    if(huffmanAddElements(huff, testString, strlen(testString)) == 0){
+    if(huffmanAddElements(huff, bytes, st.st_size) == 0){
         printf("Error adding the elements!\n");
         return 1;
     }
@@ -441,7 +479,8 @@ int main(){
         return 1;
     }
     printHuffman(huff);
-    huffmanOutput* output = huffmanEncode(huff, testString, strlen(testString));
+
+    huffmanOutput* output = huffmanEncode(huff, bytes, st.st_size);
     if (output == NULL){
         printf("Error compressing data!");
         return 1;
@@ -451,10 +490,19 @@ int main(){
     if (res == NULL){
         printf("Error decompressing data!");
     }
-    printf("Original:\n%s\n", testString);
-    printf("Decompressed:\n%*s\n", resSize, res);
+    printf("Successfully compressed the string. From %u bytes to %u bytes.\n",
+        output->originalSize, output->compressedSize);
+    printf("Testing, is same: %d.\n", compare(bytes, res, output));
+    /*printf("Original:\n%s\n", testString);
+    printf("Decompressed:\n");
+    int i;
+    for (i = 0; i < resSize; ++i){
+        printf("%c", res[i]);
+    }
+    printf("\n");*/
 
     free(res);
+    free(bytes);
     huffmanOutputClear(&output);
     huffmanClear(&huff);
 
