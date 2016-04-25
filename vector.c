@@ -57,7 +57,7 @@ int vectorAddElementAt(vector* v, void* data, unsigned at){
 	if (v == NULL || at > v->used){
 		return 0;
 	}
-	
+
 	if (vectorExpandIndexesIfNeeded(v) == 0){
 		return 0;
 	}
@@ -123,16 +123,15 @@ vector* vectorCreate(unsigned vectorSize){
 	if (newVector == NULL){
 		return NULL;
 	}
-	
+
 	newVector->indexes = (void**) malloc(sizeof(void*) * vectorSize);
 	if (newVector->indexes == NULL){
 		free(newVector);
 		return NULL;
 	}
-	
+
 	newVector->used = 0;
 	newVector->available = vectorSize;
 
 	return newVector;
 }
-

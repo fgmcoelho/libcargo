@@ -428,6 +428,51 @@ unsigned char* huffmanDecode(huffman* h, huffmanOutput* output, unsigned* result
     return resultBuffer;
 }
 
+int huffmanSaveToFile(huffman* h, const char* filename, const char* mode){
+    if (h == NULL || h->finished == 0){
+        return 0;
+    }
+
+    FILE* fp = fopen(filename, mode);
+    if (fp == NULL){
+        return 0;
+    }
+    int i, count, result;
+    for (i = 0; i < __HUFFMAN_TABLE_SIZE; ++i){
+        result = fwrite(&h->table[i].code, sizeof(int), 1, fp);
+        if (result < 1){
+            fclose(fp);
+            return 0;
+        }
+        else{
+            count += result;
+        }
+    }
+
+    return count;
+}
+
+huffman* huffmanLoadFromFile(const char* filename){
+    FILE* fp = fopen(filename, "r");
+    if (fp == NULL){
+        return 0;
+    }
+
+    huffman* h = huffmanCreate();
+    if (h == NULL){
+        fclose(fp);
+        return NULL;
+    }
+
+    int i, count, result;
+    for (i = 0; i < __HUFFMAN_TABLE_SIZE; ++i){
+        
+    }
+
+    return huffman;
+
+}
+
 static void printTree(huffmanNode* node, int level){
     if (node->left == NULL && node->right == NULL){
         print_full_code(node->code, node->byte);
