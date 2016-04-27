@@ -324,6 +324,44 @@ void listClear(list** l, void (*func)(void*)){
 	*l = NULL;
 }
 
+int listSortByQuicksort(list* l, int (*cmp)(const void*, const void*)){
+    if (l == NULL || cmp == NULL || l->size == 0){
+        return 0;
+    }
+
+    if (l->size == 1){
+        return 1;
+    }
+
+    void** indexes = (void**)malloc(l->size * sizeof(void*));
+    if (indexes == NULL){
+        return 0;
+    }
+
+    listElement* aux = l->head;
+    unsigned i = 0;
+    while(aux != NULL){
+        indexes[i] = aux->data;
+        aux = aux->next;
+        i++;
+    }
+
+    if (sortByQuickSort(indexes, (int)l->size - 1, cmp) == 0){
+        free(indexes);
+        return 0;
+    }
+
+
+    aux = l->head;
+    for (i = 0; i < l->size; i++){
+        aux->data = indexes[i];
+        aux = aux->next;
+    }
+
+    free(indexes);
+    return 1;
+}
+
 void listIteratorStart(list* l, listIterator* it){
 
 	it->l = l;

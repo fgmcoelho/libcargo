@@ -57,7 +57,7 @@ int vectorAddElementAt(vector* v, void* data, unsigned at){
 	if (v == NULL || at > v->used){
 		return 0;
 	}
-	
+
 	if (vectorExpandIndexesIfNeeded(v) == 0){
 		return 0;
 	}
@@ -82,7 +82,7 @@ int vectorRemoveElementAt(vector* v, void (*freeFunction)(void*), unsigned at){
 	if (at > v->used){
 		return 0;
 	}
-	
+
 	unsigned i;
 	void* dataToClear = v->indexes[at];
 	for (i = at; i < v->used - 1; ++i){
@@ -123,16 +123,25 @@ vector* vectorCreate(unsigned vectorSize){
 	if (newVector == NULL){
 		return NULL;
 	}
-	
+
 	newVector->indexes = (void**) malloc(sizeof(void*) * vectorSize);
 	if (newVector->indexes == NULL){
 		free(newVector);
 		return NULL;
 	}
-	
+
 	newVector->used = 0;
 	newVector->available = vectorSize;
 
 	return newVector;
 }
 
+int vectorSortByQuicksort(vector* v, int (*cmp)(const void*, const void*)){
+    if (v == NULL || v->used == 0 || cmp == NULL){
+        return 0;
+    }
+    if (v->used == 1){
+        return 1;
+    }
+    return sortByQuickSort(v->indexes, v->used - 1, cmp);
+}

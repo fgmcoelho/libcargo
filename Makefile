@@ -4,7 +4,7 @@ PATCH = 0
 TARGET = libcargo.so
 LIBS =
 CC = gcc
-CFLAGS = -Wall -Wextra
+CFLAGS = -Wall -Wextra -fPIC
 ifeq ($(DEBUG),1)
 CFLAGS += -g -O0
 else 

@@ -16,12 +16,12 @@ pool* poolCreate(unsigned numberOfElements, unsigned sizeOfElements){
 		return NULL;
 	}
 
-	newPool->memoryBlocks = listCreate();	
+	newPool->memoryBlocks = listCreate();
 	if (newPool->memoryBlocks == NULL){
 		free(newPool);
 		return NULL;
 	}
-	
+
 	void* currentBlock = malloc(numberOfElements * sizeOfElements);
 	if (currentBlock == NULL){
 		listClear(&newPool->memoryBlocks, NULL);
@@ -54,7 +54,7 @@ pool* poolCreate(unsigned numberOfElements, unsigned sizeOfElements){
 			return NULL;
 		}
 	}
-	
+
 	newPool->sizeOfElements = sizeOfElements;
 	newPool->elementsPerBlock = numberOfElements;
 
