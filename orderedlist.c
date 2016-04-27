@@ -45,7 +45,7 @@ int orderedListInsertElement(orderedList* ol, void* data){
 	index = ((max + min)/2) + (max + min)%2;
 	do{
 		result = ol->compareFunction(data, vectorGetElementAt(ol->elements, index));
-		
+
 		if (result < 0){
 			formerIndex = index;
 			max = index;
@@ -59,7 +59,7 @@ int orderedListInsertElement(orderedList* ol, void* data){
 
 	}while (index != formerIndex && (result != 0) && (min != max));
 
-	if (index == formerIndex && result < 0 && index != 0 && 	
+	if (index == formerIndex && result < 0 && index != 0 &&
 			ol->compareFunction(data, vectorGetElementAt(ol->elements, index -1)) < 0){
 		index--;
 	}
@@ -116,13 +116,13 @@ void* orderedListGetElementAt(orderedList* ol, unsigned at){
 }
 
 static unsigned orderedListFindElementIndex(orderedList* ol, void* data, int* searchResult){
-	
+
 	unsigned size = vectorGetSize(ol->elements);
 	if (size == 0){
 		*searchResult = 0;
 		return 0;
 	}
-	
+
 	int min = 0, max = size - 1, index;
 	int result;
 	index = (max + min)/2;
@@ -178,11 +178,11 @@ inline unsigned orderedListGetSize(orderedList* ol){
 
 
 orderedListIterator* orderedListIteratorCreate(orderedList* ol){
-	
+
 	if (ol == NULL){
 		return NULL;
 	}
-	
+
 	orderedListIterator* it = (orderedListIterator*)malloc(sizeof(orderedListIterator));
 	if (it == NULL){
 		return NULL;
@@ -205,15 +205,15 @@ void* orderedListIteratorGetFirstElement(orderedListIterator* it){
 		return NULL;
 	}
 	return orderedListGetElementAt(it->ol, 0);
-	
+
 }
 
 void* orderedListIteratorGetNextElement(orderedListIterator* it){
-	
+
 	if (it == NULL){
 		return NULL;
 	}
-	
+
 	it->index++;
 	return orderedListGetElementAt(it->ol, it->index);
 
@@ -223,7 +223,7 @@ void* orderedListIteratorGetCurrentElement(orderedListIterator* it){
 	if (it == NULL){
 		return NULL;
 	}
-	
+
 	return orderedListGetElementAt(it->ol, it->index);
 
 }

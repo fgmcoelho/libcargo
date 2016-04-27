@@ -51,7 +51,7 @@ struct hash_table_st{
 };
 
 static unsigned long hashTableCalculateIndex(void* keyData, unsigned size, unsigned long modToUse){
-	
+
 	unsigned long indexHash = 0;
 	unsigned i, j;
 
@@ -101,7 +101,7 @@ static int hashTableSlotContains(hashEntry* base, hashEntry* toSearch){
 }
 
 static int hashTableFindIndexAndInsert(hashEntry** entries, hashEntry* entryToUse, unsigned* collisions, unsigned long index){
-	
+
 	*collisions = 0;
 	if (entries[index] != NULL){
 		if (hashTableSlotContains(entries[index], entryToUse) == 1){
@@ -138,7 +138,7 @@ static int hashTableResize(hashTable* h, unsigned sizeFactor){
 	if (newInfo == NULL){
 		return 0;
 	}
-	
+
 	unsigned long i;
 	unsigned collisionsCount, maxCollisions = 0;
 	for (i = 0; i < newSize; ++i){
@@ -166,11 +166,11 @@ static int hashTableResize(hashTable* h, unsigned sizeFactor){
 	free(h->info);
 	h->info = newInfo;
 	h->resizeAt = (newSize * 3) / 4;
-	
+
 	if (maxCollisions > HASH_TABLE_MAX_COLLISIONS){
 		return hashTableResize(h, HASH_TABLE_RESIZE_DOUBLE);
 	}
-	
+
 	return 1;
 }
 
@@ -229,7 +229,7 @@ int hashTableInsertElement(hashTable* h, void* keyData, unsigned keySize, void* 
 	if (newKey == NULL){
 		return 0;
 	}
-	
+
 	hashEntry* newEntry = poolGetElement(h->entriesPool);
 	if (newEntry == NULL){
 		return 0;
@@ -242,7 +242,7 @@ int hashTableInsertElement(hashTable* h, void* keyData, unsigned keySize, void* 
 	newEntry->key = newKey;
 	newEntry->data = data;
 	newEntry->next = NULL;
-	
+
 	unsigned collisionsCount;
 	if(hashTableFindIndexAndInsert(h->info, newEntry, &collisionsCount, index) == 0){
 		poolReturnElement(h->keysPool, newKey);
@@ -265,11 +265,11 @@ int hashTableInsertElement(hashTable* h, void* keyData, unsigned keySize, void* 
 }
 
 int hashTableRemoveElement(hashTable* h, void* keyData, unsigned keySize, void (*freeFunction)(void*)){
-	
+
 	if (h == NULL || keyData == NULL || keySize == 0){
 		return 0;
 	}
-	
+
 	hashKey searchingKey;
 	searchingKey.size = keySize;
 	searchingKey.bytes = keyData;
@@ -301,11 +301,11 @@ int hashTableRemoveElement(hashTable* h, void* keyData, unsigned keySize, void (
 }
 
 void* hashTableGetElement(hashTable* h, void* keyData, unsigned keySize){
-	
+
 	if (h == NULL || keyData == NULL || keySize == 0){
 		return NULL;
 	}
-	
+
 	hashKey searchingKey;
 	searchingKey.size = keySize;
 	searchingKey.bytes = keyData;

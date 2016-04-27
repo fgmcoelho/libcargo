@@ -42,7 +42,7 @@ static void startLogging(void){
 }
 
 static void logInsert(referencedPointer newPointer){
-	
+
 }
 
 #endif
@@ -51,7 +51,7 @@ void* referencedPointerCreate(unsigned size, void (*freeFunction)(void*)){
 	if (size == 0){
 		return NULL;
 	}
-	
+
 	void *data = malloc(size + __REFERENCE_POINTER_JUMP);
 	if (data == NULL){
 		return NULL;

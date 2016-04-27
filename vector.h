@@ -2,6 +2,7 @@
 #define __VECTOR_H_GUARD__
 
 #include <stdlib.h>
+#include "sorting.h"
 
 struct vector_st;
 
@@ -14,5 +15,7 @@ inline void* vectorGetElementAt(vector*, unsigned);
 inline unsigned vectorGetSize(vector* );
 vector* vectorCreate(unsigned vectorSize);
 int vectorAddElementAt(vector* , void* , unsigned );
+
+int vectorSortByQuicksort(vector* v, int (*cmp)(const void*, const void*));
 
 #endif

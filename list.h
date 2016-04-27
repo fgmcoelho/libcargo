@@ -2,6 +2,7 @@
 #define __LIST_H_GUARD__
 
 #include <stdlib.h>
+#include "sorting.h"
 
 struct list_st;
 
@@ -20,6 +21,8 @@ void* listGetLastElement(list*);
 void* listFindElement(list* , int(*)(void*, void*), void* );
 int listMergeLists(list** , list** );
 void listClear(list** , void (*)(void*));
+
+int listSortByQuicksort(list*, int (*)(const void*, const void*));
 
 struct list_iterator_st {
 	list* l;
