@@ -17,5 +17,6 @@ vector* vectorCreate(unsigned vectorSize);
 int vectorAddElementAt(vector* , void* , unsigned );
 
 int vectorSortByQuicksort(vector* v, int (*cmp)(const void*, const void*));
+int vectorSortByMergesort(vector* v, int (*cmp)(const void*, const void*));
 
 #endif

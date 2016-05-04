@@ -145,3 +145,13 @@ int vectorSortByQuicksort(vector* v, int (*cmp)(const void*, const void*)){
     }
     return sortByQuickSort(v->indexes, v->used - 1, cmp);
 }
+
+int vectorSortByMergesort(vector* v, int (*cmp)(const void*, const void*)){
+    if (v == NULL || v->used == 0 || cmp == NULL){
+        return 0;
+    }
+    if (v->used == 1){
+        return 1;
+    }
+    return sortByMergeSort(v->indexes, v->used, cmp);
+}
