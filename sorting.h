@@ -3,5 +3,6 @@
 #include <stdlib.h>
 
 int sortByQuickSort(void** indexes, int size, int (*cmp)(const void*, const void*));
+int sortByMergeSort(void** indexes, int size, int (*cmp)(const void*, const void*));
 
 #endif

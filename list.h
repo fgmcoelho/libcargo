@@ -23,6 +23,7 @@ int listMergeLists(list** , list** );
 void listClear(list** , void (*)(void*));
 
 int listSortByQuicksort(list*, int (*)(const void*, const void*));
+int listSortByMergesort(list*, int (*)(const void*, const void*));
 
 struct list_iterator_st {
 	list* l;

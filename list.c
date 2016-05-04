@@ -324,18 +324,10 @@ void listClear(list** l, void (*func)(void*)){
 	*l = NULL;
 }
 
-int listSortByQuicksort(list* l, int (*cmp)(const void*, const void*)){
-    if (l == NULL || cmp == NULL || l->size == 0){
-        return 0;
-    }
-
-    if (l->size == 1){
-        return 1;
-    }
-
+static void** createListIndex(list* l){
     void** indexes = (void**)malloc(l->size * sizeof(void*));
     if (indexes == NULL){
-        return 0;
+        return NULL;
     }
 
     listElement* aux = l->head;
@@ -346,27 +338,55 @@ int listSortByQuicksort(list* l, int (*cmp)(const void*, const void*)){
         i++;
     }
 
-    if (sortByQuickSort(indexes, (int)l->size - 1, cmp) == 0){
-        free(indexes);
-        return 0;
-    }
+    return indexes;
+}
 
-
-    aux = l->head;
+static void rearrangeListByIndexes(list* l, void** indexes){
+    unsigned i;
+    listElement* aux = l->head;
     for (i = 0; i < l->size; i++){
         aux->data = indexes[i];
         aux = aux->next;
     }
 
     free(indexes);
+}
+
+static int listSort(list* l, int (*cmp)(const void*, const void*), int (*sortFunc)(void**, int, int (*)(const void*, const void*)), int size){
+    if (l == NULL || cmp == NULL || l->size == 0){
+        return 0;
+    }
+
+    if (l->size == 1){
+        return 1;
+    }
+
+    void** indexes = createListIndex(l);
+    if (indexes == NULL){
+        return 0;
+    }
+
+    if (sortFunc(indexes, size, cmp) == 0){
+        free(indexes);
+        return 0;
+    }
+
+    rearrangeListByIndexes(l, indexes);
+
     return 1;
 }
 
-void listIteratorStart(list* l, listIterator* it){
+int listSortByQuicksort(list* l, int (*cmp)(const void*, const void*)){
+    return listSort(l, cmp, sortByQuickSort, l->size - 1);
+}
 
+int listSortByMergesort(list* l, int (*cmp)(const void*, const void*)){
+    return listSort(l, cmp, sortByMergeSort, l->size);
+}
+
+void listIteratorStart(list* l, listIterator* it){
 	it->l = l;
 	it->current = l->head;
-
 }
 
 listIterator* listIteratorCreate(list* l){
